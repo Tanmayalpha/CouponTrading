@@ -13,7 +13,10 @@ import '../profile/EditeProfile.dart';
 
 
 class Bottom_Bar extends StatefulWidget {
-  const Bottom_Bar({super.key});
+
+  final String ?userId;
+
+  const Bottom_Bar({super.key, this.userId});
 
   @override
   State<Bottom_Bar> createState() => _Bottom_BarState();
@@ -21,13 +24,7 @@ class Bottom_Bar extends StatefulWidget {
 
 class _Bottom_BarState extends State<Bottom_Bar> {
   int currentindex = 0;
-  List<Widget> pages1 =<Widget>[
-    HomeScreen(),
-    Purches_Screen(),
-    EditeProfile(),
 
-
-  ];
 
 
 
@@ -37,12 +34,23 @@ class _Bottom_BarState extends State<Bottom_Bar> {
       currentindex = index;
     });
   }
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
 
+    print('=======================${widget.userId.toString()}');
+  }
   @override
 
   Widget build(BuildContext context) {
-    return WillPopScope(
+    List pages1 = [
+      HomeScreen(userId: widget.userId.toString()),
+      Purches_Screen(),
+      EditeProfile(),
 
+    ];
+    return WillPopScope(
       onWillPop: () async {
         showDialog(
             context: context,
