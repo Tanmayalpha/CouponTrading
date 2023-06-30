@@ -1,7 +1,9 @@
 import 'dart:async';
 
 
+import 'package:coupon_trading/Screen/Home%20Screeen/bottombar.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Color/Color.dart';
 import '../Authentification/LoginScreen.dart';
@@ -21,20 +23,29 @@ class _SplashScreenState extends State<SplashScreen> {
   String? type;
   bool? isSeen;
 
-
+  void checkLogin()async{
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    uid = pref.getString('userId');
+  }
   @override
   void initState() {
     // TODO: implement initState
 
-    Future.delayed(Duration(seconds:2),() async{
+    Future.delayed(Duration(milliseconds:300),() {
 
-
-
-
-         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
+      checkLogin();
 
     });
-    // Timer(Duration(seconds: 3), () {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> IntroSlider()));});
+
+    Timer(Duration(seconds: 2), () {
+      if(uid == null || uid == "") {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      }else{
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Bottom_Bar()));
+      }
+
+      });
     super.initState();
 
   }
@@ -54,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
 
 
-                  Text('Welcome',style: TextStyle(fontSize: 30,fontWeight:FontWeight.bold,color: colors.secondary),),
+                  Text('Welcome',style: TextStyle(fontSize: 30,fontWeight:FontWeight.bold,color: colors.whiteTemp),),
                   Image.asset("assets/images/splashlogo.png",height: 200,),
                 ],
               ))

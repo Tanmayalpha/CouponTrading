@@ -1,9 +1,11 @@
-
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coupon_trading/Api/api_services.dart';
+import 'package:coupon_trading/Screen/Authentification/LoginScreen.dart';
 import 'package:coupon_trading/Screen/trading_Scr.dart';
+import 'package:coupon_trading/constant/constant.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 import '../../Color/Color.dart';
 import '../../Custom Widget/AppBtn.dart';
@@ -26,16 +27,12 @@ import '../terms_condition_screen.dart';
 import 'bottombar.dart';
 
 class HomeScreen extends StatefulWidget {
+  final String? userId;
 
-
-
-
-
-  final String ?userId;
-
-
-
-  const HomeScreen({Key? key, this.userId, }) : super(key: key);
+  const HomeScreen({
+    Key? key,
+    this.userId,
+  }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -49,57 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
   var lastname;
   var gmaill;
   int currentindex = 0;
-
+late Timer timer;
   List<String> sliderImages = [
     'https://shotkit.com/wp-content/uploads/2021/06/cool-profile-pic-matheus-ferrero.jpeg',
     'https://img.freepik.com/free-photo/brunette-blogger-posing-photo_23-2148192223.jpg',
     'https://img.freepik.com/premium-photo/fashion-red-haired-girl-wear-black-dress-red-hat-posed-trade-shopping-center_151355-1430.jpg',
     'https://static.vecteezy.com/system/resources/thumbnails/006/631/541/small_2x/portrait-of-fashion-red-haired-girl-on-red-hat-and-black-dress-with-bright-make-up-posed-against-large-window-toned-style-instagram-filters-photo.jpg'
-  ];
-
-
-
-  List<NewsCard> cardList = [
-    NewsCard(
-        title: 'Idea',
-        image: '₹ 43/-'),
-    NewsCard(
-        title: 'Tata',
-        image: '₹ 632/-'),
-    NewsCard(
-        title: 'Airtel',
-        image: '₹ 253/-'),
-
-    NewsCard(
-        title: 'Byzus',
-        image: '₹ 463/-'),
-
-    NewsCard(
-        title: 'Relince',
-        image: '₹ 872/-'),
-
-    NewsCard(
-        title: 'Suzki',
-        image: '₹ 120/-'),
-
-    NewsCard(
-        title: 'Ayurveda',
-        image: '₹ 98/-'),
-
-
-    NewsCard(
-        title: 'MBA Chay Wala',
-        image: '₹ 36/-'),
-    NewsCard(
-        title: 'Zometo',
-        image: '₹ 73/-'),
-    NewsCard(
-        title: 'Amul',
-        image: '₹ 43/-'),
-    NewsCard(
-        title: 'Ola',
-        image: '₹ 76/-'),
-
   ];
 
   _CarouselSlider1() {
@@ -126,24 +78,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void initState() {
-
     super.initState();
-
-
-
     getCoupanApi();
+    getPref();
+    /*timer = Timer(Duration(seconds: 1), () {
+      getCoupanApi();
+    });*/
+    timer = Timer.periodic(Duration(seconds: 1), (Timer t) =>  getCoupanApi());
 
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    timer.cancel();
   }
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
+      GlobalKey<RefreshIndicatorState>();
 
   Future<Null> _refresh() {
     return callApi();
   }
 
   Future<Null> callApi() async {
-   
   }
 
   setFilterDataId(String id) async {
@@ -160,17 +118,13 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: colors.whiteScaffold,
         key: _key,
         drawer: getDrawer(),
-
-
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
               children: [
                 Container(
-                  height:80,
+                  height: 60,
                   decoration: const BoxDecoration(
-
-
                     gradient: LinearGradient(
                         colors: [
                           colors.primary,
@@ -205,47 +159,42 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-
-                      SizedBox(width: MediaQuery.of(context).size.width/3,),
-                      Text(
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                      ),
+                      const Text(
                         'Home',
                         style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                             color: colors.whiteTemp),
                       ),
-
-
-
-
-
-Spacer(),
-     Padding(
-       padding: EdgeInsets.only(left: 15,top: 20,right: 15),
-       child: InkWell(
-         onTap: (){
-
-           Navigator.push(context, MaterialPageRoute(builder: (context) => WalletScr(),));
-
-         },
-         child: Container(
-
-           child: Column(
-             children: [
-               Icon(Icons.account_balance_wallet_outlined,color: colors.whiteTemp,),
-               Text(
-                 'Wallet',
-                 style: TextStyle(
-                     fontSize: 10,
-                     color: colors.whiteTemp),
-               ),         ],
-           ),
-         ),
-       ),
-     )
-
-
-
+                      const Spacer(),
+                      Padding(
+                        padding: EdgeInsets.only( top: 10,bottom: 10, right: 15),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WalletScr(),
+                                ));
+                          },
+                          child: Column(
+                            children: const [
+                              Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: colors.whiteTemp,
+                              ),
+                              Text(
+                                'Wallet',
+                                style: TextStyle(
+                                    fontSize: 10, color: colors.whiteTemp),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -253,80 +202,101 @@ Spacer(),
                 const SizedBox(
                   height: 10,
                 ),
-            Container(
-              height: MediaQuery.of(context).size.height/1.32,
-
-              child:
-              ListView.builder(
-                primary: false,
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                itemCount:coupanList.length,
-
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: (){
-
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => TradingScreen(useridd: widget.userId.toString(),coupanid: coupanList[index].id,amount: coupanList[index].price,name: coupanList[index].name,),));
-
-                    },
-                    child: Card(
-                        shape:
-                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        elevation: 2,
-                        color: Colors.white,
-                        child: Column(
-                          children:  [
-
-                            Container( height: 80,
-                              width: MediaQuery.of(context).size.width,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Row(children: [
-                                  Container(
-
-
-                                    width: MediaQuery.of(context).size.width/1.4,
-
-
-                                    child: ListTile(title: Text("${coupanList[index].name}",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: colors.secondary),),
-                                      subtitle:  Text('Available Stock -${coupanList[index].stock}',style: TextStyle(fontSize: 9,color: colors.secondary),),
-                                      trailing: Container(width: MediaQuery.of(context).size.width/5,decoration: BoxDecoration(image: DecorationImage(image:AssetImage('assets/images/trad.jpg'),fit: BoxFit.fill)),),
-                                    ),
-
-
-
-                                  ),
-                                  Padding(
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.32,
+                  child: ListView.builder(
+                    primary: false,
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: ScrollPhysics(),
+                    itemCount: coupanList.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TradingScreen(
+                                  useridd: widget.userId.toString(),
+                                  coupanid: coupanList[index].id,
+                                  amount: coupanList[index].price,
+                                  name: coupanList[index].name,
+                                ),
+                              ));
+                        },
+                        child: Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            elevation: 2,
+                            color: Colors.white,
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 80,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
                                     padding: const EdgeInsets.all(5),
-                                    child: Container(
-                                      width: MediaQuery.of(context).size.width/5,
-                                      child: Center(
-                                        child: Center(
-                                          child: Btn(
-                                            height: 30,
-                                            width:60,
-
-                                            title: "${coupanList[index].price}",
-
-                                            onPress: () {
-
-                                            },
+                                    child: Row(children: [
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                1.4,
+                                        child: ListTile(
+                                          title: Text(
+                                            "${coupanList[index].name}",
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: colors.secondary),
+                                          ),
+                                          subtitle: Text(
+                                            'Available Stock -${coupanList[index].stock}',
+                                            style: const TextStyle(
+                                                fontSize: 9,
+                                                color: colors.secondary),
+                                          ),
+                                          trailing: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                5,
+                                            decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                    image: AssetImage(
+                                                        'assets/images/trad.jpg'),
+                                                    fit: BoxFit.fill)),
                                           ),
                                         ),
-                                      ),),
-                                  )
-
-                                ]),
-                              ),),
-
-                          ],
-                        )),
-                  );
-                },
-              ),
-            ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              5,
+                                          child: Center(
+                                            child: Center(
+                                              child: Btn(
+                                                height: 30,
+                                                width: 60,
+                                                title:
+                                                    "${coupanList[index].price}",
+                                                onPress: () {},
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ]),
+                                  ),
+                                ),
+                              ],
+                            )),
+                      );
+                    },
+                  ),
+                ),
 
                 // SizedBox(height: 100,),
               ],
@@ -337,13 +307,17 @@ Spacer(),
     );
   }
 
+  List<GetCooupann> coupanList = [];
+  String? name, profile, email;
 
+  getPref()async{
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    name = pref.getString(Constant.NAME);
+    profile = pref.getString(Constant.PROFILE);
+    email = pref.getString(Constant.EMAIL);
+  }
 
-List<GetCooupann>coupanList=[];
-  Future<void> getCoupanApi()
-  async {
-
-
+  Future<void> getCoupanApi() async {
 
     var headers = {
       'Cookie': 'ci_session=eb53ae9aeac2ce4fd80c41100b10abd26e4f8422'
@@ -355,32 +329,17 @@ List<GetCooupann>coupanList=[];
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-
-
-
       var result = await response.stream.bytesToString();
-      print('${result}_______');
 
-      var finalrsult = GetCoupanModel.fromJson(jsonDecode(result)) ;
+      var finalrsult = GetCoupanModel.fromJson(jsonDecode(result));
 
-
-setState(() {
-
-  coupanList = finalrsult.data ?? [] ;
-  print('${coupanList.first.description}_______');
-
-
-});
-
-  }
-  else {
-
-
-
-  print(response.reasonPhrase);
-
-  }
-
+      setState(() {
+        coupanList = finalrsult.data ?? [];
+        print('${coupanList.first.description}_______');
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   void showToast() {
@@ -392,9 +351,6 @@ setState(() {
         backgroundColor: colors.primary,
         textColor: Colors.black);
   }
-
-
-
 
   int _currentPost = 0;
 
@@ -419,10 +375,6 @@ setState(() {
     return dots;
   }
 
- 
-
-  
-
   getDrawer() {
     return Container(
       color: Colors.white,
@@ -443,9 +395,9 @@ setState(() {
               crossAxisAlignment: CrossAxisAlignment.center,
               // main
               children: [
-                const CircleAvatar(
+                 CircleAvatar(
                   radius: 35,
-                  backgroundImage: AssetImage('assets/images/dp.jpg'),
+                  backgroundImage: NetworkImage(profile ?? ''),
 
                   // NetworkImage(
                   //   "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?cs=srgb&dl=pexels-mohamed-abdelghaffar-771742.jpg&fm=jpg",
@@ -458,12 +410,11 @@ setState(() {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
-                  children:[
+                  children:  [
                     Text(
-
-
                       // "${firstname.toString()} ${middlename.toString()} ${lastname.toString()}",
-                     "Tara Singh", style: TextStyle(
+                      name ?? '',
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.w500),
@@ -471,11 +422,10 @@ setState(() {
                     SizedBox(
                       width: 150,
                       child: Text(
-                        // "${gmaill.toString()}",
-                        "graj@gmail.com",
+                        email ?? '',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
                             fontSize: 13),
@@ -483,7 +433,7 @@ setState(() {
                     ),
                   ],
                 ),
-                InkWell(
+                /*InkWell(
                     onTap: () {
                       Navigator.push(
                           context,
@@ -494,7 +444,7 @@ setState(() {
                     child: Icon(
                       Icons.edit,
                       color: colors.whiteTemp,
-                    ))
+                    ))*/
               ],
             ),
           ),
@@ -502,7 +452,7 @@ setState(() {
             height: 10,
           ),
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
@@ -529,16 +479,13 @@ setState(() {
                 'Home',
               ),
               onTap: () {
-
                 Navigator.pop(context);
-
               },
             ),
           ),
-
           ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 5.0),
+            leading: const Padding(
+              padding: EdgeInsets.only(left: 5.0),
               child: Icon(
                 Icons.account_balance_wallet_outlined,
                 size: 30,
@@ -568,11 +515,11 @@ setState(() {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>TermsAndConditionView()),
+                MaterialPageRoute(
+                    builder: (context) => TermsAndConditionView()),
               );
             },
           ),
-
           ListTile(
             leading: Image.asset(
               "assets/images/drawer1.png",
@@ -590,7 +537,6 @@ setState(() {
               );
             },
           ),
-
           ListTile(
             leading: Image.asset(
               "assets/images/Term & Conditions.png",
@@ -608,8 +554,6 @@ setState(() {
               );
             },
           ),
-
-
           ListTile(
             leading: Image.asset(
               "assets/images/Sign Out.png",
@@ -618,36 +562,40 @@ setState(() {
               width: 40,
               //color: Colors.grey.withOpacity(0.8),
             ),
-            title: Text(
+            title: const Text(
               'Sign Out',
             ),
             onTap: () async {
-    showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-    return AlertDialog(
-    title: Text("Confirm Exit"),
-    content: Text("Are you sure you want to exit?"),
-    actions: <Widget>[
-    ElevatedButton(
-    style: ElevatedButton.styleFrom(primary: colors.secondary),
-    child: Text("YES"),
-    onPressed: () {
-    SystemNavigator.pop();
-    },
-    ),
-    ElevatedButton(
-    style: ElevatedButton.styleFrom(primary: colors.secondary),
-    child: Text("NO"),
-    onPressed: () {
-    Navigator.of(context).pop();
-    },
-    )
-    ],
-    );
-    });
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Confirm Exit"),
+                      content: const Text("Are you sure you want to exit?"),
+                      actions: <Widget>[
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: colors.secondary),
+                          child: const Text("YES"),
+                          onPressed: () async{
+                            SharedPreferences pref = await SharedPreferences.getInstance();
+                            pref.clear();
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
 
+                          },
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: colors.secondary),
+                          child: Text("NO"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    );
+                  });
             },
           ),
         ],
@@ -655,8 +603,6 @@ setState(() {
     );
   }
 }
-
-
 
 class NewsCard {
   String? title;

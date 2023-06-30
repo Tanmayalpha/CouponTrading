@@ -17,7 +17,7 @@ class _Purches_ScreenState extends State<Purches_Screen> {
 
           Container(
             width: MediaQuery.of(context).size.width,
-            height: 80,
+            height: 60,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                   colors: [
@@ -35,37 +35,16 @@ class _Purches_ScreenState extends State<Purches_Screen> {
               ),
               //   color: (Theme.of(context).colorScheme.apcolor)
             ),
-            child: Center(
-                child: Row(
-                  children: [
-
-                    // InkWell(
-                    //   onTap: () {
-                    //     Navigator.pop(context);
-                    //   },
-                    //   child: const Padding(
-                    //     padding: EdgeInsets.only(right: 5),
-                    //     child: Padding(
-                    //       padding: EdgeInsets.all(8.0),
-                    //       child: Icon(
-                    //         Icons.arrow_back_ios,
-                    //         color: colors.whiteTemp,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    SizedBox(width: MediaQuery.of(context).size.width/2.5,),
-                    Text(
-                      'Purches',
-                      style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: colors.whiteTemp),
-                    ),
-                  ],
-                )),
+            child: const Center(
+                child: Text(
+                  'Portfolio',
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: colors.whiteTemp),
+                ),),
           ),
-          SizedBox(height: 30,),
+          const SizedBox(height: 30,),
 
         ]),
       ),

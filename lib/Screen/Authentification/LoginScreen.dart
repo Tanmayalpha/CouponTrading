@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'package:coupon_trading/constant/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -117,8 +118,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         .height / 1.33,
                     child: Column(
                       children: [
-                        SizedBox(height: 20,),
-                        Text("Login", style: TextStyle(color: colors.blackTemp,
+                        const SizedBox(height: 20,),
+                        const Text("Login", style: TextStyle(color: colors.secondary,
                             fontWeight: FontWeight.bold,
                             fontSize: 35),),
                         SizedBox(height: 15,),
@@ -155,15 +156,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                           }
                                         },
                                         // maxLength: 10,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           border: InputBorder.none,
                                           counterText: "",
-                                          contentPadding: const EdgeInsets.only(
+                                          contentPadding: EdgeInsets.only(
                                               left: 15, top: 15),
                                           hintText: "Enter Mobile Number",
                                           hintStyle:
                                           TextStyle(color: colors.secondary),
-                                          prefixIcon: const Icon(
+                                          prefixIcon: Icon(
                                             Icons.call,
                                             color: colors.secondary,
                                             size: 24,
@@ -287,8 +288,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("Dont have an account?",
-                                      style: TextStyle(color: colors.blackTemp,
+                                    const Text("Dont have an account?",
+                                      style: TextStyle(color: colors.secondary,
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold),),
                                     TextButton(onPressed: () {
@@ -300,9 +301,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 builder: (context) =>
                                                     SignupScreen(),));
                                         },
-                                        child: Text("SignUp", style: TextStyle(
+                                        child: const Text("SignUp", style: TextStyle(
                                             color: colors.secondary,
                                             fontSize: 16,
+                                            decoration: TextDecoration.underline,
                                             fontWeight: FontWeight.bold),)))
                                   ],
                                 )
@@ -331,6 +333,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> signinapi() async {
+    SharedPreferences prefe = await SharedPreferences.getInstance();
+
     var headers = {
       'Cookie': 'ci_session=eb53ae9aeac2ce4fd80c41100b10abd26e4f8422'
     };
@@ -348,9 +352,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
       var result = await response.stream.bytesToString();
+      print('___________${result}__________');
       var finalrsult = jsonDecode(result);
-      var raj = SignInmodel.fromJson(jsonDecode(result)) ;
-      var userid=raj.data![0].id.toString();
+
 
       if (finalrsult['error']==true) {
 
@@ -360,7 +364,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
       else {
         showToast(finalrsult['message']);
-        var raj = SignInmodel.fromJson(jsonDecode(result)) ;
+        var jsonResult = SignInmodel.fromJson(jsonDecode(result)) ;
+        var userid= jsonResult.data?[0].id.toString();
+        var email= jsonResult.data?[0].email.toString();
+        var name= jsonResult.data?[0].username.toString();
+        var image= jsonResult.data?[0].image.toString();
+        var mob= jsonResult.data?[0].mobile.toString();
+        prefe.setString(Constant.USERID, userid ?? '');
+        prefe.setString(Constant.EMAIL, email ?? '');
+        prefe.setString(Constant.NAME, name ?? '');
+        prefe.setString(Constant.PROFILE, image ?? '');
+        prefe.setString(Constant.PHONE, mob ?? '');
+
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => Bottom_Bar(userId: userid.toString())));
 

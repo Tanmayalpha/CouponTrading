@@ -99,7 +99,7 @@ class _Bottom_BarState extends State<Bottom_Bar> {
               BottomNavigationBarItem(
 
 
-                  label:'Purches',
+                  label:'Portfolio',
 
 
 

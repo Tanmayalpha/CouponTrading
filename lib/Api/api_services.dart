@@ -10,6 +10,7 @@ class ApiService {
   static const String register_user = baseUrl+'register_user';
   static const String login = baseUrl+'login';
   static const String get_coupans = baseUrl+'get_coupans';
+  static const String get_coupans_detail = baseUrl+'get_graph_data';
 
   static const String getBooking = baseUrl+'bookings';
   static const String sendOTP = baseUrl+'v_send_otp';
