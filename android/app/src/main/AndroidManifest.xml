@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.coupontrading.coupon_trading">
    <application
-        android:label="coupon_trading"
+        android:label="KLIN TRADE"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

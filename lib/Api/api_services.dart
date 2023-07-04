@@ -46,6 +46,7 @@ class ApiService {
   static const String addDoctorEvent = baseUrl+'add_doctor_event';
   static const String getAwareness = baseUrl+'get_awareness';
   static const String getSettings = baseUrl+'get_settings';
+  static const String getSliderImages = baseUrl+'get_slider_images';
   static const String getPharmaCategory = baseUrl+'select_category';
   static const String getPharmaProductsCategory = baseUrl+'pharma_category';
   static const String getPharmaProductsCategoryNew = baseUrl+'get_categories_product';

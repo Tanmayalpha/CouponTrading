@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coupon_trading/Api/api_services.dart';
+import 'package:coupon_trading/Model/slider_data_response.dart';
 import 'package:coupon_trading/Screen/Authentification/LoginScreen.dart';
 import 'package:coupon_trading/Screen/support_screen.dart';
 import 'package:coupon_trading/Screen/trading_Scr.dart';
@@ -68,18 +69,19 @@ class _HomeScreenState extends State<HomeScreen> {
             enableInfiniteScroll: true,
             reverse: false,
             autoPlay: true,
-            autoPlayInterval: Duration(seconds: 5),
+            autoPlayInterval: const Duration(seconds: 5),
             autoPlayAnimationDuration: Duration(milliseconds: 500),
             enlargeCenterPage: false,
             scrollDirection: Axis.horizontal,
             height: 180.0),
-        items: sliderImages.map((e) {
-          return Image.network(e);
+        items: sliderImageList.map((e) {
+          return Image.network(e.image ?? '',fit: BoxFit.cover,);
         }).toList());
   }
 
   void initState() {
     super.initState();
+    sliderData();
     getCoupanApi();
     getPref();
     /*timer = Timer(Duration(seconds: 1), () {
@@ -200,8 +202,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(
-                  height: 10,
+
+                Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    SizedBox(
+                      //height: 200,
+                      width: double.maxFinite,
+                      child: _CarouselSlider1(),
+                    ),
+                    Positioned(
+                      bottom: 20,
+                      // left: 80,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildDots(),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 1.32,
@@ -359,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> dots = [];
     if (false) {
     } else {
-      for (int i = 0; i < 5; i++) {
+      for (int i = 0; i < sliderImageList.length; i++) {
         dots.add(
           Container(
             margin: EdgeInsets.all(1.5),
@@ -619,6 +637,34 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+
+  List<SliderDataList>  sliderImageList= [];
+
+  sliderData() async{
+    var headers = {
+      'Cookie': 'ci_session=ea20ce6e5b4f3265813ff387bf04c70abb75c16b'
+    };
+    var request = http.Request('GET', Uri.parse('${ApiService.getSliderImages}'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+       var result = await response.stream.bytesToString();
+       var finalResult = jsonDecode(result);
+       if(finalResult['error']){
+
+       }else {
+         sliderImageList = SliderData.fromJson(finalResult).data ?? [] ;
+       }
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+
   }
 }
 
