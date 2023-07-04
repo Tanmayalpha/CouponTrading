@@ -11,6 +11,15 @@ class ApiService {
   static const String login = baseUrl+'login';
   static const String get_coupans = baseUrl+'get_coupans';
   static const String get_coupans_detail = baseUrl+'get_graph_data';
+  static const String add_balance = baseUrl+'add_transaction';
+  static const String buySellCoupon = baseUrl+'coupan_transaction';
+  static const String getProfile = baseUrl+'profile';
+  static const String walletTransaction = baseUrl+'transactions';
+
+  static const String withdrawRequestApi = '${baseUrl}withdrawl_request';
+  static const String purchasedCoupans  = baseUrl+'purchased_coupans';
+  static const String updateProfile  = baseUrl+'update_user';
+  static const String averageProfitLossApi  = baseUrl+'get_average_profit_loss';
 
   static const String getBooking = baseUrl+'bookings';
   static const String sendOTP = baseUrl+'v_send_otp';
@@ -20,7 +29,7 @@ class ApiService {
   static const String getPharmaSlider = baseUrl + 'get_slider';
   static const String getUserProfile = baseUrl+'user_profile';
   static const String getEvents = baseUrl+'get_events';
-    static const String getWebinar = baseUrl+'get_webinar';
+  static const String getWebinar = baseUrl+'get_webinar';
   static const String getNewType = baseUrl+'get_news_type';
   static const String getfaq = baseUrl+'getfaq';
 
@@ -71,7 +80,7 @@ class ApiService {
   static const String getCityApi = baseUrl1+'get_cities';
   static const String getPlaceApi = baseUrl1+'get_places';
   static const String getSubsriptionApi = baseUrl+'get_plans';
-    static const String getPlanPurchasApi = baseUrl+'plan_purchase_success';
-    static const String getCheckSubscriptionApi = baseUrl+'check_subscription';
-    static const String getUploadBannerApi = baseUrl+'upload_banner';
+  static const String getPlanPurchasApi = baseUrl+'plan_purchase_success';
+  static const String getCheckSubscriptionApi = baseUrl+'check_subscription';
+  static const String getUploadBannerApi = baseUrl+'upload_banner';
 }

@@ -34,7 +34,7 @@ class _Bottom_BarState extends State<Bottom_Bar> {
       currentindex = index;
     });
   }
-@override
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -110,7 +110,7 @@ class _Bottom_BarState extends State<Bottom_Bar> {
 
                   icon: Icon(Icons.person)),
 
-             
+
             ],
 
             currentIndex:  currentindex,

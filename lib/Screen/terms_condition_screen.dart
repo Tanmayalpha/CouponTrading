@@ -17,7 +17,7 @@ class TermsAndConditionView extends StatefulWidget {
 
 class _TermsAndConditionViewState extends State<TermsAndConditionView> {
 
-  var termsconditionn;
+  String? termsconditionn;
   @override
   void initState() {
     termsApi();
@@ -29,67 +29,69 @@ class _TermsAndConditionViewState extends State<TermsAndConditionView> {
     return SafeArea(
       child: Scaffold(
 
-        body:Column(
-          children: [
+        body:SingleChildScrollView(
+          child: Column(
+            children: [
 
 
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 80,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [
-                      colors.primary,
-                      colors.secondary,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.02, 1]),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 80,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [
+                        colors.primary,
+                        colors.secondary,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.02, 1]),
 
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(1),
-                  //
-                  bottomRight: Radius.circular(1),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(1),
+                    //
+                    bottomRight: Radius.circular(1),
+                  ),
+                  //   color: (Theme.of(context).colorScheme.apcolor)
                 ),
-                //   color: (Theme.of(context).colorScheme.apcolor)
-              ),
-              child: Center(
-                  child: Row(
-                    children: [
+                child: Center(
+                    child: Row(
+                      children: [
 
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.only(right: 5),
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.arrow_back_ios,
-                              color: colors.whiteTemp,
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 5),
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: colors.whiteTemp,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width/5.8,),
-                      Text(
-                        'Terms & Conditions',
-                        style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: colors.whiteTemp),
-                      ),
-                    ],
-                  )),
-            ),
-            SizedBox(height: 30,),
+                        SizedBox(width: MediaQuery.of(context).size.width/5.8,),
+                        Text(
+                          'Terms & Conditions',
+                          style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: colors.whiteTemp),
+                        ),
+                      ],
+                    )),
+              ),
+              SizedBox(height: 30,),
 
 
 
-            termsconditionn!=null? SingleChildScrollView(child: Html(data: "${termsconditionn}"))
-                : Container(child: Center(child: CircularProgressIndicator(color: colors.black54,)),),
-          ],
+              termsconditionn!= null? SingleChildScrollView(child: Html(data: "${termsconditionn}"))
+                  : Container(child: Center(child: CircularProgressIndicator(color: colors.black54,)),),
+            ],
+          ),
         ),
       ),
     );
@@ -100,13 +102,10 @@ class _TermsAndConditionViewState extends State<TermsAndConditionView> {
 
   Future<void> termsApi() async {
 
-
-
-
     var headers = {
-      'Cookie': 'CFID=12052; CFTOKEN=86ff74390ccf66f3-D15C5595-F060-B09C-BDA48E95B3243BA4'
+      'Cookie': 'ci_session=b3011b2dcfdddf06099d16ef986a0245c21c9ed9'
     };
-    var request = http.Request('GET', Uri.parse(ApiService.termsAndCondition));
+    var request = http.Request('POST', Uri.parse('${ApiService.getSettings}'));
 
     request.headers.addAll(headers);
 
@@ -114,10 +113,13 @@ class _TermsAndConditionViewState extends State<TermsAndConditionView> {
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
+      //   print('___________${result}__________');
+      var finalResult = jsonDecode(result);
+      print('___________${finalResult['data']['terms_conditions'][0]}__________');
+      termsconditionn = finalResult['data']['terms_conditions'][0];
 
-      // var finalresult = Termsconditionmodel.fromJson(json.decode(result));
       setState(() {
-        // termsconditionn=finalresult.data;
+
       });
     }
     else {

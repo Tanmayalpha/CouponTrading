@@ -4,13 +4,13 @@
 
 class GetCoupanModel {
   GetCoupanModel({
-      bool? error,
-      String? message,
-      List<GetCooupann>? data,}){
+    bool? error,
+    String? message,
+    List<GetCooupann>? data,}){
     _error = error;
     _message = message;
     _data = data;
-}
+  }
 
   GetCoupanModel.fromJson(dynamic json) {
     _error = json['error'];
@@ -25,13 +25,13 @@ class GetCoupanModel {
   bool? _error;
   String? _message;
   List<GetCooupann>? _data;
-GetCoupanModel copyWith({  bool? error,
-  String? message,
-  List<GetCooupann>? data,
-}) => GetCoupanModel(  error: error ?? _error,
-  message: message ?? _message,
-  data: data ?? _data,
-);
+  GetCoupanModel copyWith({  bool? error,
+    String? message,
+    List<GetCooupann>? data,
+  }) => GetCoupanModel(  error: error ?? _error,
+    message: message ?? _message,
+    data: data ?? _data,
+  );
   bool? get error => _error;
   String? get message => _message;
   List<GetCooupann>? get data => _data;
@@ -59,14 +59,15 @@ GetCoupanModel copyWith({  bool? error,
 
 class GetCooupann {
   GetCooupann({
-      String? id,
-      String? name,
-      String? stock,
-      String? price,
-      String? description,
-      String? status,
-      String? createdAt,
-      String? updatedAt,}){
+    String? id,
+    String? name,
+    String? stock,
+    String? price,
+    String? description,
+    String? status,
+    String? logo,
+    String? createdAt,
+    String? updatedAt,}){
     _id = id;
     _name = name;
     _stock = stock;
@@ -75,10 +76,12 @@ class GetCooupann {
     _status = status;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
-}
+  }
 
   GetCooupann.fromJson(dynamic json) {
     _id = json['id'];
+    _logo = json['logo'];
+
     _name = json['name'];
     _stock = json['stock'];
     _price = json['price'];
@@ -93,31 +96,36 @@ class GetCooupann {
   String? _price;
   String? _description;
   String? _status;
+  String? _logo;
   String? _createdAt;
   String? _updatedAt;
-GetCooupann copyWith({  String? id,
-  String? name,
-  String? stock,
-  String? price,
-  String? description,
-  String? status,
-  String? createdAt,
-  String? updatedAt,
-}) => GetCooupann(  id: id ?? _id,
-  name: name ?? _name,
-  stock: stock ?? _stock,
-  price: price ?? _price,
-  description: description ?? _description,
-  status: status ?? _status,
-  createdAt: createdAt ?? _createdAt,
-  updatedAt: updatedAt ?? _updatedAt,
-);
+
+  GetCooupann copyWith({  String? id,
+    String? name,
+    String? stock,
+    String? price,
+    String? description,
+    String? status,
+    String? logo,
+    String? createdAt,
+    String? updatedAt,
+  }) => GetCooupann(  id: id ?? _id,
+      name: name ?? _name,
+      stock: stock ?? _stock,
+      price: price ?? _price,
+      description: description ?? _description,
+      status: status ?? _status,
+      createdAt: createdAt ?? _createdAt,
+      updatedAt: updatedAt ?? _updatedAt,
+      logo: logo ?? _logo
+  );
   String? get id => _id;
   String? get name => _name;
   String? get stock => _stock;
   String? get price => _price;
   String? get description => _description;
   String? get status => _status;
+  String? get logo => _logo;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
 

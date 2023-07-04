@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coupon_trading/Api/api_services.dart';
 import 'package:coupon_trading/Screen/Authentification/LoginScreen.dart';
+import 'package:coupon_trading/Screen/support_screen.dart';
 import 'package:coupon_trading/Screen/trading_Scr.dart';
 import 'package:coupon_trading/constant/constant.dart';
 
@@ -46,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var lastname;
   var gmaill;
   int currentindex = 0;
-late Timer timer;
+  late Timer timer;
   List<String> sliderImages = [
     'https://shotkit.com/wp-content/uploads/2021/06/cool-profile-pic-matheus-ferrero.jpeg',
     'https://img.freepik.com/free-photo/brunette-blogger-posing-photo_23-2148192223.jpg',
@@ -95,7 +96,7 @@ late Timer timer;
   }
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
+  GlobalKey<RefreshIndicatorState>();
 
   Future<Null> _refresh() {
     return callApi();
@@ -239,9 +240,20 @@ late Timer timer;
                                     child: Row(children: [
                                       SizedBox(
                                         width:
-                                            MediaQuery.of(context).size.width /
-                                                1.4,
+                                        MediaQuery.of(context).size.width /
+                                            1.4,
                                         child: ListTile(
+                                          leading: Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width /
+                                                5,
+                                            decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                    image: NetworkImage(
+                                                        coupanList[index].logo ?? ''),
+                                                    fit: BoxFit.fill)),
+                                          ),
                                           title: Text(
                                             "${coupanList[index].name}",
                                             style: const TextStyle(
@@ -255,25 +267,14 @@ late Timer timer;
                                                 fontSize: 9,
                                                 color: colors.secondary),
                                           ),
-                                          trailing: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5,
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    image: AssetImage(
-                                                        'assets/images/trad.jpg'),
-                                                    fit: BoxFit.fill)),
-                                          ),
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(5),
                                         child: SizedBox(
                                           width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
+                                              .size
+                                              .width /
                                               5,
                                           child: Center(
                                             child: Center(
@@ -281,7 +282,7 @@ late Timer timer;
                                                 height: 30,
                                                 width: 60,
                                                 title:
-                                                    "${coupanList[index].price}",
+                                                "${coupanList[index].price}",
                                                 onPress: () {},
                                               ),
                                             ),
@@ -395,7 +396,7 @@ late Timer timer;
               crossAxisAlignment: CrossAxisAlignment.center,
               // main
               children: [
-                 CircleAvatar(
+                CircleAvatar(
                   radius: 35,
                   backgroundImage: NetworkImage(profile ?? ''),
 
@@ -551,6 +552,23 @@ late Timer timer;
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => PrivacyPolicyView()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Image.asset(
+              "assets/images/Term & Conditions.png",
+              height: 40,
+              width: 40,
+              color: colors.black54,
+            ),
+            title: const Text(
+              'Support',
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SupportScreen()),
               );
             },
           ),

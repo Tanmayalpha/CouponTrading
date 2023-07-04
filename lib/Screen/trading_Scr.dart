@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:coupon_trading/Api/api_services.dart';
@@ -11,6 +12,9 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 import 'package:k_chart/flutter_k_chart.dart';
 import 'package:k_chart/k_chart_widget.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../Color/Color.dart';
 import '../Custom Widget/AppBtn.dart';
@@ -47,189 +51,277 @@ class _TradingScreenState extends State<TradingScreen> {
   ChartStyle chartStyle = ChartStyle();
   ChartColors chartColors = ChartColors();
 
+  String? uid;
+  late Razorpay _razorpay;
+  late Timer timer;
+
+  KLineEntity? lastData ;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getData();
+    timer = Timer.periodic(Duration(seconds: 1), (Timer t) =>  getData());
+
+    getUserPref();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    timer.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      body: SingleChildScrollView(
-        child: Column(children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 60,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [
-                    colors.primary,
-                    colors.secondary,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.02, 1]),
+          body: SingleChildScrollView(
+            child: Column(children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 60,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [
+                        colors.primary,
+                        colors.secondary,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.02, 1]),
 
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(1),
-                //
-                bottomRight: Radius.circular(1),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(1),
+                    //
+                    bottomRight: Radius.circular(1),
+                  ),
+                  //   color: (Theme.of(context).colorScheme.apcolor)
+                ),
+                child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 5),
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: colors.whiteTemp,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Text(
+                          widget.name.toString(),
+                          style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: colors.whiteTemp),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 15, top: 20, right: 15),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WalletScr(),
+                                  ));
+                            },
+                            child: Container(
+                              child: Column(
+                                children: const [
+                                  Icon(
+                                    Icons.account_balance_wallet_outlined,
+                                    color: colors.whiteTemp,
+                                  ),
+                                  Text(
+                                    'Wallet',
+                                    style:
+                                    TextStyle(fontSize: 10, color: colors.whiteTemp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )),
               ),
-              //   color: (Theme.of(context).colorScheme.apcolor)
-            ),
-            child: Center(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.only(right: 5),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: colors.whiteTemp,
-                      ),
-                    ),
-                  ),
-                ),
-                Text(
-                  widget.name.toString(),
-                  style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: colors.whiteTemp),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15, top: 20, right: 15),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WalletScr(),
-                          ));
-                    },
-                    child: Container(
-                      child: Column(
-                        children: const [
-                          Icon(
-                            Icons.account_balance_wallet_outlined,
-                            color: colors.whiteTemp,
-                          ),
-                          Text(
-                            'Wallet',
-                            style:
-                                TextStyle(fontSize: 10, color: colors.whiteTemp),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            )),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          Column(
-            children: <Widget>[
-              Stack(children: <Widget>[
-                SizedBox(
-                  height: 450,
-                  width: double.infinity,
-                  child: KChartWidget(
-                    datas,
-                    isLine: isLine,
-                    mainState: _mainState,
-                    volHidden: _volHidden,
-                    secondaryState: _secondaryState,
-                    chartStyle,
-                    chartColors,
-                    fixedLength: 2,
-                    timeFormat: TimeFormat.YEAR_MONTH_DAY,
-                    isChinese: isChinese,
-                    isTrendLine: true,
-                  ),
-                ),
-                if (showLoading)
-                  Container(
-                      width: double.infinity,
+
+              Column(
+                children: <Widget>[
+                  Stack(children: <Widget>[
+                    SizedBox(
                       height: 450,
-                      alignment: Alignment.center,
-                      child: CircularProgressIndicator()),
-              ]),
-              buildButtons(),
-              /*Container(
+                      width: double.maxFinite,
+                      child: KChartWidget(
+                        datas,
+                        isLine: isLine,
+
+                        mainState: _mainState,
+                        volHidden: _volHidden,
+                        secondaryState: _secondaryState,
+                        chartStyle,
+                        chartColors,
+                        fixedLength: 2,
+                        timeFormat: TimeFormat.YEAR_MONTH_DAY,
+                        isChinese: isChinese,
+                        isTrendLine: true,
+                      ),
+                    ),
+                    if (false)
+                      Container(
+                          width: double.infinity,
+                          height: 450,
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator()),
+                  ]),
+                  buildButtons(),
+                  /*Container(
               height: 230,
               width: double.infinity,
               child: DepthChart(_bids!, _asks!,chartColors),
             )*/
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15, right: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
 
-                Card(
-                  child: Container(
-                    height: 70,
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Column(children: [
-                        const Text(
-                          'Current Prize',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: colors.secondary),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          widget.amount.toString(),
-                          style: TextStyle(fontSize: 13, color: colors.blackTemp),
-                        ),
-                      ]),
+
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Column(children: [
+
+                          const Text(
+                            'High',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: colors.secondary),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            amount == '' ?  widget.amount.toString() : amount ,
+                            style: TextStyle(fontSize: 12, color: colors.blackTemp),
+                          ),
+                        ]),
+                      ),
+                    ),
+                    Card(
+                      child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Column(children: [
+
+                            const Text(
+                              'Low',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.secondary),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              lastData?.low.toString() ??'--' ,
+                              style: const TextStyle(fontSize: 12, color: colors.blackTemp),
+                            ),
+                          ])
+                      ),
+                    ),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Column(
+                            children: [
+
+                              const Text(
+                                'Current Prize',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.secondary),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              (lastData?.open ?? 0.0) <= (double.parse(amount ?? '0.0') ) ? Text(
+                                amount == '' ?  widget.amount.toString() : amount ,
+                                style: const TextStyle(fontSize: 13, color: Colors.green,fontWeight: FontWeight.bold),
+                              ) : Text(
+                                amount == '' ?  widget.amount.toString() : amount ,
+                                style: const TextStyle(fontSize: 12, color: colors.red,fontWeight: FontWeight.bold),
+                              ),
+                            ]),
+                      ),
+                    ),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child:  Column(
+                            children: [
+
+                              const Text(
+                                'Open',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.secondary),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                lastData?.open.toString() ?? '--',
+                                style: TextStyle(fontSize: 12, color: colors.blackTemp),
+                              ),
+                            ]),
+                      ),
+                    ),
+
+
+
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Center(
+                    child: Btn(
+
+                      title: "Buy",
+                      height: 50,
+                      width: 100,
+                      onPress: () {
+                        setState(() {
+                          typee = "Buy";
+                        });
+
+                        popshow2(typee);
+                      },
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-            Center(
-            child: Btn(
-
-              title: "Buy",
-              height: 50,
-              width: 100,
-              onPress: () {
-                setState(() {
-                  typee = "Buy";
-                });
-
-                popshow2(typee);
-              },
-            ),
-          ),
-            Center(
+                  /*Center(
               child: Btn(
                color: colors.red,
                 title: "Sell",
@@ -242,34 +334,49 @@ class _TradingScreenState extends State<TradingScreen> {
                   popshow2(typee);
                 },
               ),
-            ),],),
-          const SizedBox(height: 50,)
-        ]),
-      ),
-    ));
+            ),*/
+                  /* button1(() {
+                setState(() {
+                  typee = "Sell";
+                });
+                popshow2(typee);
+              },),*/
+
+                ],),
+              const SizedBox(height: 50,)
+            ]),
+          ),
+        ));
   }
 
-  Future<void> buyCoupan(typeeee) async {
+  getUserPref() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    uid = prefs.getString('userId');
+  }
+
+  Future<void> buyCoupan(typeeee, {String ? paymentid, String? paymentType }) async {
     var headers = {
       'Cookie': 'ci_session=ef2aff848979b6494f9365917121186a328cb6fa'
     };
     var request = http.MultipartRequest(
         'POST',
-        Uri.parse(
-            'https://developmentalphawizz.com/coupan-trading/app/v1/api/coupan_transaction'));
+        Uri.parse('${ApiService.buySellCoupon}'));
     request.fields.addAll({
-      'user_id': widget.coupanid.toString(),
+      'user_id': uid ?? '30',
       'quantity': quantitycontroller.text,
       'coupan_id': widget.coupanid.toString(),
-      'amount': widget.amount.toString(),
-      'purchase_amount': totalamountcontroller.text.toString(),
+      'amount': amount.toString(),
+      'purchase_amount': amount.toString(),
       'type': typeeee.toString(),
-      'transaction_id': 'tranjndnkd'
+      'transaction_id': paymentid ?? '',
+      'transaction_type': paymentType ?? ''
     });
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
+
+    print("--------- print() ----  ${request.fields}" );
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
@@ -289,6 +396,41 @@ class _TradingScreenState extends State<TradingScreen> {
     }
   }
 
+  Widget button1(VoidCallback onPress) {
+    return InkWell(
+      onTap: onPress,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.red,
+          gradient: const LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.red,
+                Colors.red,
+              ],
+              stops: [
+                0,
+                1,
+              ]),
+          borderRadius: BorderRadius.circular(10),
+          // border: Border.all(color:colors.primary)
+        ),
+        height: 50,
+        width: 100,
+        child: const Center(
+          child: Text(
+            "Sell",
+            style:  TextStyle(
+              color:colors.whiteTemp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
 
 
 
@@ -301,8 +443,8 @@ class _TradingScreenState extends State<TradingScreen> {
         backgroundColor: Colors.white,
         textColor: Colors.black);
   }
-
-  void showPPopup() {
+  var uuid = Uuid();
+  void showPPopup(String type) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
@@ -316,7 +458,7 @@ class _TradingScreenState extends State<TradingScreen> {
             height: MediaQuery.of(context).size.height / 3,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
             child: Column(children: [
-              SizedBox(
+              const SizedBox(
                 height: 8,
               ),
               Container(
@@ -326,50 +468,64 @@ class _TradingScreenState extends State<TradingScreen> {
                     color: colors.secondary,
                     borderRadius: BorderRadius.circular(50)),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
-              Text(
+              const Text(
                 'Select Any One Payment Method',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
-              Card(
-                elevation: 4,
-                child: Container(
-                  height: 40,
-                  width: 150,
-                  child: Center(
-                      child: Text(
-                    'Wallet',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: colors.secondary),
-                  )),
+              InkWell(
+                onTap: (){
+                  Navigator.pop(context);
+                  final paymentId = uuid.v4();
+                  buyCoupan(typee, paymentid: paymentId,paymentType: 'wallet');
+                },
+                child: Card(
+                  elevation: 4,
+                  child: Container(
+                    height: 40,
+                    width: 150,
+                    child: const Center(
+                        child: Text(
+                          'Wallet',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: colors.secondary),
+                        )),
+                  ),
                 ),
               ),
               SizedBox(
                 height: 10,
               ),
-              Card(
-                elevation: 4,
-                child: Container(
-                  height: 40,
-                  width: 150,
-                  child: Center(
-                      child: Text(
-                    'Other',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: colors.secondary),
-                  )),
+              InkWell(
+                onTap: (){
+                  Navigator.pop(context);
+                  openCheckout();
+
+                },
+                child: Card(
+                  elevation: 4,
+                  child: Container(
+                    height: 40,
+                    width: 150,
+                    child: Center(
+                        child: Text(
+                          'Other',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: colors.secondary),
+                        )),
+                  ),
                 ),
               )
             ]),
@@ -380,8 +536,8 @@ class _TradingScreenState extends State<TradingScreen> {
   }
 
   popshow2(
-    String typ,
-  ) {
+      String typ,
+      ) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -421,12 +577,12 @@ class _TradingScreenState extends State<TradingScreen> {
                                     )),
                                 child: Center(
                                     child: Text(
-                                  '${typ}',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: colors.whiteTemp),
-                                ))),
+                                      '${typ}',
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: colors.whiteTemp),
+                                    ))),
                             const SizedBox(
                               height: 15,
                             ),
@@ -438,8 +594,8 @@ class _TradingScreenState extends State<TradingScreen> {
                                   height: 10,
                                 ),
                                 Row(
-                                  children: [
-                                    const Padding(
+                                  children: const [
+                                    Padding(
                                       padding: EdgeInsets.all(5.0),
                                       child: Text(
                                         "Select Quantity",
@@ -482,7 +638,7 @@ class _TradingScreenState extends State<TradingScreen> {
                                           } else {
                                             setState(() {
                                               double raj = double.parse(
-                                                  widget.amount.toString());
+                                                  amount.toString());
                                               int amoun = int.parse(
                                                   raj.toStringAsFixed(0));
 
@@ -496,15 +652,15 @@ class _TradingScreenState extends State<TradingScreen> {
                                           }
                                         },
                                         // maxLength: 10,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           border: InputBorder.none,
                                           counterText: "",
-                                          contentPadding: const EdgeInsets.only(
+                                          contentPadding: EdgeInsets.only(
                                               left: 15, top: 15),
                                           hintText: "Quantity",
                                           hintStyle: TextStyle(
                                               color: colors.secondary),
-                                          prefixIcon: const Icon(
+                                          prefixIcon: Icon(
                                             Icons.countertops,
                                             color: colors.secondary,
                                             size: 24,
@@ -517,9 +673,9 @@ class _TradingScreenState extends State<TradingScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                Row(
-                                  children: [
-                                    const Padding(
+                                typ == 'Sell' ? SizedBox() :   Row(
+                                  children: const [
+                                    Padding(
                                       padding: EdgeInsets.all(5.0),
                                       child: Text(
                                         "Total Amount",
@@ -530,10 +686,10 @@ class _TradingScreenState extends State<TradingScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
+                                typ == 'Sell' ? SizedBox() :  const SizedBox(
                                   height: 2,
                                 ),
-                                Card(
+                                typ == 'Sell' ? SizedBox() :  Card(
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
                                   elevation: 4,
@@ -548,15 +704,15 @@ class _TradingScreenState extends State<TradingScreen> {
                                         maxLength: 4,
                                         controller: totalamountcontroller,
                                         keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           border: InputBorder.none,
                                           counterText: "",
-                                          contentPadding: const EdgeInsets.only(
+                                          contentPadding: EdgeInsets.only(
                                               left: 15, top: 15),
                                           hintText: "Total Amount",
                                           hintStyle: TextStyle(
                                               color: colors.secondary),
-                                          prefixIcon: const Icon(
+                                          prefixIcon: Icon(
                                             Icons.currency_rupee,
                                             color: colors.secondary,
                                             size: 24,
@@ -573,12 +729,16 @@ class _TradingScreenState extends State<TradingScreen> {
                                   onPress: () {
                                     if (_formKey.currentState!.validate()) {
                                       Navigator.pop(context);
-                                      showPPopup();
+                                      if(typ == 'Sell'){
+                                        buyCoupan(typ);
+                                      }else {
+                                        showPPopup(typ);
+                                      }
                                     }
                                   },
                                   width: 200,
                                   height: 50,
-                                  title: 'Make Payment',
+                                  title: typ == 'Sell' ?'Sell' :  'Make Payment',
                                 ),
                               ]),
                             )
@@ -605,8 +765,8 @@ class _TradingScreenState extends State<TradingScreen> {
         button("Candlestick Chart", onPressed: () => isLine = false),
         button("MA", onPressed: () => _mainState = MainState.MA),
         button("BOLL", onPressed: () => _mainState = MainState.BOLL),
-       button("MA Hide", onPressed: () => _mainState = MainState.NONE),
-       button("MACD", onPressed: () => _secondaryState = SecondaryState.MACD),
+        button("MA Hide", onPressed: () => _mainState = MainState.NONE),
+        button("MACD", onPressed: () => _secondaryState = SecondaryState.MACD),
         //button("KDJ", onPressed: () => _secondaryState = SecondaryState.KDJ),
         //button("RSI", onPressed: () => _secondaryState = SecondaryState.RSI),
         //button("WR", onPressed: () => _secondaryState = SecondaryState.WR),
@@ -629,6 +789,7 @@ class _TradingScreenState extends State<TradingScreen> {
       style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
     );
   }
+  String amount ='0.0' ;
 
   void getData() {
     /*Future<String> future = getIPAddress('$period');
@@ -663,9 +824,12 @@ class _TradingScreenState extends State<TradingScreen> {
           .cast<KLineEntity>();
       DataUtil.calculate(datas!);
       showLoading = false;
+      amount = parseJson['price'];
+      lastData =  list.map((e) => KLineEntity.fromJson(e)).toList().last ;
+
       setState(() {});
     }).catchError((_) {
-      showLoading = false;
+      // showLoading = false;
       setState(() {});
       print('获取数据失败');
     });
@@ -708,5 +872,71 @@ class _TradingScreenState extends State<TradingScreen> {
       print('Failed getting IP address');
     }
     return result;
+  }
+
+  void openCheckout() async {
+    //SharedPreferences prefs = await SharedPreferences.getInstance();
+    //String? email = prefs.getString('email');
+    String phone = '9070305953';
+    int amt = totalvalue;
+
+
+    print('${phone}_______________');
+    print('${amt}_______________');
+
+    var options = {
+      'key': 'rzp_test_1DP5mmOlF5G5ag',
+      'amount': amt*100,
+      'name': 'Coupon Trad',
+      'description': 'Coupon Trad-user',
+      "currency": "INR",
+      // 'prefill': {'contact': '$phone', 'email': '$email'},
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+  }
+
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+
+    // onSuccessAddMoney();
+    buyCoupan(typee,paymentid: response.paymentId);
+    Fluttertoast.showToast(
+        msg: "Successful",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0);
+    // Navigator.push(context, MaterialPageRoute(builder: (context)=>DashBoardScreen()));
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Fluttertoast.showToast(
+    //     msg: "ERROR: " + response.code.toString() + " - " + response.message!,
+    //     toastLength: Toast.LENGTH_SHORT);
+
+    print('${response.error}________error_________');
+    print('${response.code}________code_________');
+    Fluttertoast.showToast(
+        msg: "Payment cancelled by user",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    Fluttertoast.showToast(
+        msg: "EXTERNAL_WALLET: " + response.walletName!,
+        toastLength: Toast.LENGTH_SHORT);
   }
 }

@@ -19,7 +19,7 @@ class PrivacyPolicyView extends StatefulWidget {
 
 class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
-  var privacyyy;
+  String? privacyyy;
   @override
   void initState() {
     privacyapi();
@@ -32,72 +32,74 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
       child: Scaffold(
 
         body:
-        Column(
-          children: [
+        SingleChildScrollView(
+          child: Column(
+            children: [
 
 
 
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 80,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [
-                      colors.primary,
-                      colors.secondary,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.02, 1]),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 60,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [
+                        colors.primary,
+                        colors.secondary,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.02, 1]),
 
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(1),
-                  //
-                  bottomRight: Radius.circular(1),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(1),
+                    //
+                    bottomRight: Radius.circular(1),
+                  ),
+                  //   color: (Theme.of(context).colorScheme.apcolor)
                 ),
-                //   color: (Theme.of(context).colorScheme.apcolor)
-              ),
-              child: Center(
-                  child: Row(
-                    children: [
+                child: Center(
+                    child: Row(
+                      children: [
 
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.only(right: 5),
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.arrow_back_ios,
-                              color: colors.whiteTemp,
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 5),
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: colors.whiteTemp,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width/4.5,),
-                      Text(
-                        'Privecy And Policy',
-                        style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: colors.whiteTemp),
-                      ),
-                    ],
-                  )),
-            ),
-            SizedBox(height: 30,),
+                        SizedBox(width: MediaQuery.of(context).size.width/4.5,),
+                        Text(
+                          'Privecy And Policy',
+                          style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: colors.whiteTemp),
+                        ),
+                      ],
+                    )),
+              ),
+              SizedBox(height: 30,),
 
 
-            privacyyy!=null ?
+              privacyyy!=null ?
 
-            SingleChildScrollView(
-                child:
-            Html(data: "${privacyyy}"))
+              SingleChildScrollView(
+                  child:
+                  Html(data: "${privacyyy}"))
 
-                : Container(child: Center(child: CircularProgressIndicator(color: colors.black54,)),),
-          ],
+                  : Container(child: Center(child: CircularProgressIndicator(color: colors.black54,)),),
+            ],
+          ),
         ),
       ),
     );
@@ -106,9 +108,9 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   Future<void> privacyapi() async {
 
     var headers = {
-      'Cookie': 'CFID=12052; CFTOKEN=86ff74390ccf66f3-D15C5595-F060-B09C-BDA48E95B3243BA4'
+      'Cookie': 'ci_session=b3011b2dcfdddf06099d16ef986a0245c21c9ed9'
     };
-    var request = http.Request('GET', Uri.parse(ApiService.privacy));
+    var request = http.Request('POST', Uri.parse('${ApiService.getSettings}'));
 
     request.headers.addAll(headers);
 
@@ -116,15 +118,20 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
+      //   print('___________${result}__________');
+      var finalResult = jsonDecode(result);
+      print('___________${finalResult['data']['terms_conditions'][0]}__________');
+      privacyyy = finalResult['data']['privacy_policy'][0];
 
-      // var finalresult = Privacymodel.fromJson(json.decode(result));
       setState(() {
-        // privacyyy=finalresult.data;
+
       });
     }
     else {
-    print(response.reasonPhrase);
+      print(response.reasonPhrase);
     }
 
+
   }
+
 }
