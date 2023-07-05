@@ -201,8 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-
-
                 Stack(
                   alignment: Alignment.bottomCenter,
                   children: [

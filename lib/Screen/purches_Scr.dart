@@ -26,6 +26,9 @@ class _Purches_ScreenState extends State<Purches_Screen> {
   final _formKey = GlobalKey<FormState>();
   int totalvalue = 0;
 
+  int selectedIndex = 0;
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -53,7 +56,7 @@ class _Purches_ScreenState extends State<Purches_Screen> {
       'user_id': uid ?? '30',
       'quantity': quantitycontroller.text,
       'coupan_id': couponId.toString(),
-      'amount': amount.toString(),
+      'amount': purchasedList[selectedIndex].currentValue ?? amount.toString(),
       'purchase_amount': purchaseAmount,
       'type': typeeee.toString(),
       'transaction_id': paymentId ?? ''
@@ -623,6 +626,7 @@ class _Purches_ScreenState extends State<Purches_Screen> {
                       : Center(
                     child: ElevatedButton(
                       onPressed: () {
+                        selectedIndex = index ;
                         popshow2(
                             item.currentValue.toString(),
                             item.coupanId.toString(),
