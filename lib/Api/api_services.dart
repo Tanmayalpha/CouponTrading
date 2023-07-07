@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "https://developmentalphawizz.com/coupan-trading/app/v1/api/";
-  static const String baseUrl1 = "https://developmentalphawizz.com/dr_booking/user/app/v1/api/";
-  static const String imageUrl = "https://developmentalphawizz.com/dr_booking/";
+  static const String baseUrl = "https://klintrade.com/app/v1/api/";
+  static const String imageUrl = "https://klintrade.com/";
 
 
   static const String register_user = baseUrl+'register_user';
@@ -77,9 +76,6 @@ class ApiService {
   static const String getHistoryDeleteApi = baseUrl+'delete_data';
   static const String getCompaniesApi = baseUrl+'get_companies';
   static const String getCompaniesDropApi = baseUrl+'get_company';
-  static const String getStateApi = baseUrl1+'get_states';
-  static const String getCityApi = baseUrl1+'get_cities';
-  static const String getPlaceApi = baseUrl1+'get_places';
   static const String getSubsriptionApi = baseUrl+'get_plans';
   static const String getPlanPurchasApi = baseUrl+'plan_purchase_success';
   static const String getCheckSubscriptionApi = baseUrl+'check_subscription';

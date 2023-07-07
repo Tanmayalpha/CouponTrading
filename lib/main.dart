@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DR.Apps',
+      title: 'KLIN TRADE',
       theme: ThemeData(
 
       ),

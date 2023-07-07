@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                         colors: [
-                          colors.primary,
+                          colors.secondary,
                           colors.secondary,
                         ],
                         begin: Alignment.topCenter,
@@ -401,11 +401,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             height: 120,
-            decoration: const BoxDecoration(
+            decoration:  BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
-                colors: [colors.primary, colors.secondary],
+                colors: [colors.secondary, colors.secondary],
               ),
             ),
             child: Row(

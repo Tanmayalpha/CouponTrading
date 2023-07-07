@@ -114,8 +114,8 @@ class _Bottom_BarState extends State<Bottom_Bar> {
             ],
 
             currentIndex:  currentindex,
-            selectedItemColor: colors.primary,
-            unselectedItemColor: colors.whiteTemp,
+            selectedItemColor:colors.whiteTemp ,
+            unselectedItemColor: colors.whiteTemp.withOpacity(0.5),
             onTap: _onItemTapped,
             showUnselectedLabels: true,
             showSelectedLabels: true,
