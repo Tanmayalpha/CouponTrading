@@ -4,10 +4,14 @@ import 'package:http/http.dart' as http;
 class ApiService {
   static const String baseUrl = "https://klintrade.com/app/v1/api/";
   static const String imageUrl = "https://klintrade.com/";
+  static const String socketUrl = "wss://klintrade.com:8089";
 
 
   static const String register_user = baseUrl+'register_user';
   static const String login = baseUrl+'login';
+  static const String sendOtp = baseUrl+'send_otp';
+  static const String sendOtpForSignup = baseUrl+'verify_user';
+  static const String resetPassword = baseUrl+'reset_password';
   static const String get_coupans = baseUrl+'get_coupans';
   static const String get_coupans_detail = baseUrl+'get_graph_data';
   static const String add_balance = baseUrl+'add_transaction';
@@ -16,12 +20,13 @@ class ApiService {
   static const String walletTransaction = baseUrl+'transactions';
 
   static const String withdrawRequestApi = '${baseUrl}withdrawl_request';
+  static const String getWithdrawHistory = '${baseUrl}get_withdrawl_request';
   static const String purchasedCoupans  = baseUrl+'purchased_coupans';
   static const String updateProfile  = baseUrl+'update_user';
   static const String averageProfitLossApi  = baseUrl+'get_average_profit_loss';
 
+
   static const String getBooking = baseUrl+'bookings';
-  static const String sendOTP = baseUrl+'v_send_otp';
   static const String getupdateUser = baseUrl+'update_user';
   static const String verifyOtp = baseUrl+'v_verify_otp';
   static const String getSlider = baseUrl + 'get_slider_images';

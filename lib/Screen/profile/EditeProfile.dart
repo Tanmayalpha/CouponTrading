@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:coupon_trading/Api/api_services.dart';
 import 'package:coupon_trading/Model/get_profile.dart';
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -83,23 +84,23 @@ class _EditeProfileState extends State<EditeProfile> {
     return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-          title: Text('Select Image'),
+          title: const Text('Select Image'),
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                style: ElevatedButton.styleFrom(primary: colors.secondary),
+                style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
                 onPressed: () {
                   _getFromCamera();
                 },
-                child: Text('Camera'),
+                child: const Text('Camera'),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 30,
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(primary: colors.secondary),
-                child: Text("Gallery"),
+                style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
+                child: const Text("Gallery"),
                 onPressed: () {
                   _getFromGallery();
                 },
@@ -153,36 +154,20 @@ class _EditeProfileState extends State<EditeProfile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
-                height: 80,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [
-                        colors.primary,
-                        colors.secondary,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.02, 1]),
-
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(1),
-                    //
-                    bottomRight: Radius.circular(1),
-                  ),
-                  //   color: (Theme.of(context).colorScheme.apcolor)
-                ),
-                child: Row(
+                height: 60,
+                decoration: context.customGradientBox(),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                    ),
-                    const Text(
+
+                    Text(
                       'Profile',
                       style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: colors.whiteTemp),
                     ),
+
                   ],
                 ),
               ),
@@ -190,7 +175,7 @@ class _EditeProfileState extends State<EditeProfile> {
                 height: 20,
               ),
               getProfile == null
-                  ? Center(
+                  ? const Center(
                 child: CircularProgressIndicator(
                   color: colors.secondary,
                 ),
@@ -217,7 +202,7 @@ class _EditeProfileState extends State<EditeProfile> {
                         ),
                       ),
                     )
-                        : Container(
+                        : SizedBox(
                       height: 150,
                       width: 150,
                       child: ClipRRect(
@@ -245,7 +230,7 @@ class _EditeProfileState extends State<EditeProfile> {
                                   color: colors.secondary,
                                   borderRadius:
                                   BorderRadius.circular(50)),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.camera_enhance_outlined,
                                 color: Colors.white,
                               )),
@@ -566,7 +551,7 @@ class _EditeProfileState extends State<EditeProfile> {
                                           const EdgeInsets.only(
                                               left: 15, top: 15),
                                           hintText: "Date Of Birth",
-                                          hintStyle: TextStyle(
+                                          hintStyle: const TextStyle(
                                               color: colors.secondary),
                                           prefixIcon: IconButton(
                                               onPressed: () async {
@@ -652,6 +637,7 @@ class _EditeProfileState extends State<EditeProfile> {
                                       child: TextFormField(
                                         maxLength: 10,
                                         controller: numbercontroller,
+                                        readOnly: true,
                                         // obscureText: _isHidden ? true : false,
                                         keyboardType:
                                         TextInputType.number,
@@ -1035,7 +1021,7 @@ class _EditeProfileState extends State<EditeProfile> {
                                   height: 20,
                                 ),
                                 Center(
-                                  child: isLoading ? CircularProgressIndicator() : Btn(
+                                  child: isLoading ? const CircularProgressIndicator() : Btn(
                                     title: "Update",
                                     height: 50,
                                     width: 320,

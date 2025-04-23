@@ -2,15 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coupon_trading/Api/api_services.dart';
+import 'package:coupon_trading/Custom%20Widget/gradient_button.dart';
 import 'package:coupon_trading/Screen/demo_chart.dart';
+import 'package:coupon_trading/Screen/services/Payment/razor_pay.dart';
+import 'package:coupon_trading/Screen/services/socket/web_socket.dart';
 import 'package:coupon_trading/Screen/wallet.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 
 import 'package:flutter/services.dart';
-import 'package:k_chart/flutter_k_chart.dart';
+import 'package:interactive_chart/interactive_chart.dart';
+// import 'package:k_chart/flutter_k_chart.dart';
 import 'package:k_chart/k_chart_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +23,8 @@ import 'package:uuid/uuid.dart';
 
 import '../Color/Color.dart';
 import '../Custom Widget/AppBtn.dart';
+import '../constant/constant.dart';
+import 'charts/candlestick_chart.dart';
 
 class TradingScreen extends StatefulWidget {
   final String? useridd;
@@ -39,62 +46,80 @@ class _TradingScreenState extends State<TradingScreen> {
   final _formKey = GlobalKey<FormState>();
   int totalvalue = 0;
 
-  List<KLineEntity>? datas;
+  // List<KLineEntity>? datas;
   bool showLoading = true;
   MainState _mainState = MainState.MA;
   bool _volHidden = true;
   SecondaryState _secondaryState = SecondaryState.MACD;
   bool isLine = true;
   bool isChinese = false;
-  List<DepthEntity>? _bids, _asks;
+  // List<DepthEntity>? _bids, _asks;
 
-  ChartStyle chartStyle = ChartStyle();
-  ChartColors chartColors = ChartColors();
+ // ChartStyle chartStyle = ChartStyle();
+ //  ChartColors chartColors = ChartColors();
 
-  String? uid;
+  String? uid,name,email,mobile;
   late Razorpay _razorpay;
-  late Timer timer;
 
-  KLineEntity? lastData ;
+  // KLineEntity? lastData ;
+
+  final List<CandleData> _data = [];
+  bool _darkMode = true;
+  bool _showAverage = false;
+  String amount ='0.0' ;
+  String open ='0.0' ;
+  String high ='0.0' ;
+  String low ='0.0' ;
+  String current ='0.0' ;
+
+  List<CandleData> candles = [];
+
+  bool isLoading = true ;
+
+  final socket = WebSocketManager();
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    timer = Timer.periodic(Duration(seconds: 1), (Timer t) =>  getData());
+    //timer = Timer.periodic(const Duration(seconds: 1), (Timer t) =>  getData());
 
+    myData();
+    socketSetup();
     getUserPref();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    timer.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: _darkMode ? Brightness.dark : Brightness.light,
+      ),
+      home: SafeArea(
         child: Scaffold(
           body: SingleChildScrollView(
             child: Column(children: [
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 60,
-                decoration: const BoxDecoration(
+                decoration:  BoxDecoration(
                   gradient: LinearGradient(
                       colors: [
-                        colors.primary,
+                        colors.primary.withOpacity(0.5),
                         colors.secondary,
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       stops: [0.02, 1]),
 
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(1),
                     //
                     bottomRight: Radius.circular(1),
@@ -128,37 +153,110 @@ class _TradingScreenState extends State<TradingScreen> {
                               color: colors.whiteTemp),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 15, top: 20, right: 15),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => WalletScr(),
-                                  ));
-                            },
-                            child: Container(
-                              child: Column(
-                                children: const [
-                                  Icon(
-                                    Icons.account_balance_wallet_outlined,
-                                    color: colors.whiteTemp,
+                            padding: EdgeInsets.only(left: 15, top: 20, right: 15),
+                            child: Row(children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => WalletScr(),
+                                      ));
+                                },
+                                child: Container(
+                                  child: Column(
+                                    children: const [
+                                      Icon(
+                                        Icons.account_balance_wallet_outlined,
+                                        color: colors.whiteTemp,
+                                      ),
+                                      Text(
+                                        'Wallet',
+                                        style:
+                                        TextStyle(fontSize: 10, color: colors.whiteTemp),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    'Wallet',
-                                    style:
-                                    TextStyle(fontSize: 10, color: colors.whiteTemp),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
+
+                            ],)
                         )
                       ],
                     )),
               ),
 
-              Column(
+              Row(children: [
+                IconButton(
+                  icon: Icon(_darkMode ? Icons.dark_mode : Icons.light_mode),
+                  onPressed: () => setState(() => _darkMode = !_darkMode),
+                ),
+                IconButton(
+                  icon: Icon(
+                    _showAverage ? Icons.show_chart : Icons.bar_chart_outlined,
+                  ),
+                  onPressed: () {
+                    setState(() => _showAverage = !_showAverage);
+                    if (_showAverage) {
+                       _computeTrendLines();
+                    } else {
+                       _removeTrendLines();
+                    }
+                  },
+                ),
+              ],),
+
+              SizedBox(
+                height: MediaQuery.of(context).size.height*0.6,
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator(),)
+                    :  InteractiveChart(
+                  /** Only [candles] is required */
+                  candles: candles,
+
+                  /** Uncomment the following for examples on optional parameters */
+
+                  /** Example styling */
+                  // style: ChartStyle(
+                  //   priceGainColor: Colors.teal[200]!,
+                  //   priceLossColor: Colors.blueGrey,
+                  //   volumeColor: Colors.teal.withOpacity(0.8),
+                  //   trendLineStyles: [
+                  //     Paint()
+                  //       ..strokeWidth = 2.0
+                  //       ..strokeCap = StrokeCap.round
+                  //       ..color = Colors.deepOrange,
+                  //     Paint()
+                  //       ..strokeWidth = 4.0
+                  //       ..strokeCap = StrokeCap.round
+                  //       ..color = Colors.orange,
+                  //   ],
+                  //   priceGridLineColor: Colors.blue[200]!,
+                  //   priceLabelStyle: TextStyle(color: Colors.blue[200]),
+                  //   timeLabelStyle: TextStyle(color: Colors.blue[200]),
+                  //   selectionHighlightColor: Colors.red.withOpacity(0.2),
+                  //   overlayBackgroundColor: Colors.red[900]!.withOpacity(0.6),
+                  //   overlayTextStyle: TextStyle(color: Colors.red[100]),
+                  //   timeLabelHeight: 32,
+                  //   volumeHeightFactor: 0.2, // volume area is 20% of total height
+                  // ),
+                  /** Customize axis labels */
+                  // timeLabel: (timestamp, visibleDataCount) => "📅",
+                  // priceLabel: (price) => "${price.round()} 💎",
+                  /** Customize overlay (tap and hold to see it)
+                   ** Or return an empty object to disable overlay info. */
+                  // overlayInfo: (candle) => {
+                  //   "💎": "🤚    ",
+                  //   "Hi": "${candle.high?.toStringAsFixed(2)}",
+                  //   "Lo": "${candle.low?.toStringAsFixed(2)}",
+                  // },
+                  /** Callbacks */
+                  // onTap: (candle) => print("user tapped on $candle"),
+                  // onCandleResize: (width) => print("each candle is $width wide"),
+                ),
+              ),
+
+              /*Column(
                 children: <Widget>[
                   Stack(children: <Widget>[
                     SizedBox(
@@ -179,21 +277,17 @@ class _TradingScreenState extends State<TradingScreen> {
                         isTrendLine: true,
                       ),
                     ),
-                    if (false)
-                      Container(
-                          width: double.infinity,
-                          height: 450,
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator()),
+
                   ]),
                   buildButtons(),
-                  /*Container(
+                  *//*Container(
               height: 230,
               width: double.infinity,
               child: DepthChart(_bids!, _asks!,chartColors),
-            )*/
+            )*//*
+
                 ],
-              ),
+              ),*/
               Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
                 child: Row(
@@ -203,7 +297,7 @@ class _TradingScreenState extends State<TradingScreen> {
 
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(10),
                         child: Column(children: [
 
                           const Text(
@@ -217,15 +311,15 @@ class _TradingScreenState extends State<TradingScreen> {
                             height: 5,
                           ),
                           Text(
-                            amount == '' ?  widget.amount.toString() : amount ,
-                            style: TextStyle(fontSize: 12, color: colors.blackTemp),
+                            high == '' ?  widget.amount.toString() : high , //amount
+                            style:  TextStyle(fontSize: 12, color: _darkMode ? colors.whiteTemp : colors.blackTemp),
                           ),
                         ]),
                       ),
                     ),
                     Card(
                       child: Padding(
-                          padding: const EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(10),
                           child: Column(children: [
 
                             const Text(
@@ -239,15 +333,17 @@ class _TradingScreenState extends State<TradingScreen> {
                               height: 5,
                             ),
                             Text(
-                              lastData?.low.toString() ??'--' ,
-                              style: const TextStyle(fontSize: 12, color: colors.blackTemp),
+                                candles.isEmpty ? '--':  low,  //candles.last.low.toString() ,
+                              style:  TextStyle(fontSize: 12, color: _darkMode ? colors.whiteTemp : colors.blackTemp),
                             ),
                           ])
                       ),
                     ),
-                    Card(
+                    candles.isEmpty
+                        ? const SizedBox()
+                        : Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(10),
                         child: Column(
                             children: [
 
@@ -261,11 +357,12 @@ class _TradingScreenState extends State<TradingScreen> {
                               const SizedBox(
                                 height: 5,
                               ),
-                              (lastData?.open ?? 0.0) <= (double.parse(amount ?? '0.0') ) ? Text(
-                                amount == '' ?  widget.amount.toString() : amount ,
+                              (candles.last?.open ?? 0.0) <= (double.parse(current ?? '0.0') )
+                                  ? Text(
+                                current == '' ?  widget.amount.toString() :  current,//amount
                                 style: const TextStyle(fontSize: 13, color: Colors.green,fontWeight: FontWeight.bold),
                               ) : Text(
-                                amount == '' ?  widget.amount.toString() : amount ,
+                                current == '' ?  widget.amount.toString() : current ,
                                 style: const TextStyle(fontSize: 12, color: colors.red,fontWeight: FontWeight.bold),
                               ),
                             ]),
@@ -273,7 +370,7 @@ class _TradingScreenState extends State<TradingScreen> {
                     ),
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(10),
                         child:  Column(
                             children: [
 
@@ -288,8 +385,8 @@ class _TradingScreenState extends State<TradingScreen> {
                                 height: 5,
                               ),
                               Text(
-                                lastData?.open.toString() ?? '--',
-                                style: TextStyle(fontSize: 12, color: colors.blackTemp),
+                                candles.isEmpty ? '--': open,//candles.last.open.toString(),
+                                style: TextStyle(fontSize: 12, color: _darkMode ? colors.whiteTemp : colors.blackTemp),
                               ),
                             ]),
                       ),
@@ -310,14 +407,14 @@ class _TradingScreenState extends State<TradingScreen> {
                     child: Btn(
 
                       title: "Buy",
-                      height: 50,
-                      width: 100,
+                      height: 40,
+                      width: 200,
                       onPress: () {
                         setState(() {
                           typee = "Buy";
                         });
 
-                        popshow2(typee);
+                        buySellDialog(typee);
                       },
                     ),
                   ),
@@ -346,15 +443,35 @@ class _TradingScreenState extends State<TradingScreen> {
               const SizedBox(height: 50,)
             ]),
           ),
-        ));
+        )),);
+  }
+
+
+  _computeTrendLines() {
+    final ma7 = CandleData.computeMA(candles, 7);
+    final ma30 = CandleData.computeMA(candles, 30);
+    final ma90 = CandleData.computeMA(candles, 90);
+
+    for (int i = 0; i < candles.length; i++) {
+      candles[i].trends = [ma7[i], ma30[i], ma90[i]];
+    }
+  }
+
+  _removeTrendLines() {
+    for (final data in candles) {
+      data.trends = [];
+    }
   }
 
   getUserPref() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    uid = prefs.getString('userId');
+    uid =  prefs.getString('userId');
+    email = prefs.getString(Constant.EMAIL);
+    name = prefs.getString(Constant.NAME);
+    mobile =prefs.getString(Constant.PHONE);
   }
 
-  Future<void> buyCoupan(typeeee, {String ? paymentid, String? paymentType }) async {
+  Future<void> buySellCoupan(typeeee, {String ? paymentid, String? paymentType }) async {
     var headers = {
       'Cookie': 'ci_session=ef2aff848979b6494f9365917121186a328cb6fa'
     };
@@ -444,7 +561,8 @@ class _TradingScreenState extends State<TradingScreen> {
         textColor: Colors.black);
   }
   var uuid = Uuid();
-  void showPPopup(String type) {
+
+  void paymentMethodPopup(String type) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
@@ -456,6 +574,7 @@ class _TradingScreenState extends State<TradingScreen> {
           ),
           child: Container(
             height: MediaQuery.of(context).size.height / 3,
+            width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
             child: Column(children: [
               const SizedBox(
@@ -469,65 +588,60 @@ class _TradingScreenState extends State<TradingScreen> {
                     borderRadius: BorderRadius.circular(50)),
               ),
               const SizedBox(
-                height: 20,
+                height: 25,
               ),
               const Text(
                 'Select Any One Payment Method',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 17,
+                  fontSize: 20,
                 ),
               ),
               const SizedBox(
-                height: 20,
+                height: 40,
               ),
-              InkWell(
-                onTap: (){
+              AppButton(
+                width: 150,
+                height: 40,
+                title: 'Wallet',
+                onTab: (){
                   Navigator.pop(context);
                   final paymentId = uuid.v4();
-                  buyCoupan(typee, paymentid: paymentId,paymentType: 'wallet');
+                  buySellCoupan(typee, paymentid: paymentId,paymentType: 'wallet');
                 },
-                child: Card(
-                  elevation: 4,
-                  child: Container(
-                    height: 40,
-                    width: 150,
-                    child: const Center(
-                        child: Text(
-                          'Wallet',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: colors.secondary),
-                        )),
-                  ),
-                ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              InkWell(
-                onTap: (){
+              AppButton(
+                width: 150,
+                height: 40,
+                title: 'Other',
+                onTab: (){
                   Navigator.pop(context);
-                  openCheckout();
 
+
+                  RazorPayHelper razorPay = RazorPayHelper(
+                      '120', context, (result) async {
+                    if (result != "error") {
+
+                      buySellCoupan(typee,paymentid: result);
+                      Fluttertoast.showToast(
+                          msg: "Successful",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+
+                    } else {}
+                  },email: email, mobile: mobile,name: name);
+
+                  razorPay.init();
                 },
-                child: Card(
-                  elevation: 4,
-                  child: Container(
-                    height: 40,
-                    width: 150,
-                    child: Center(
-                        child: Text(
-                          'Other',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: colors.secondary),
-                        )),
-                  ),
-                ),
-              )
+              ),
+
             ]),
           ),
         );
@@ -535,7 +649,7 @@ class _TradingScreenState extends State<TradingScreen> {
     );
   }
 
-  popshow2(
+  buySellDialog(
       String typ,
       ) {
     showDialog(
@@ -555,7 +669,7 @@ class _TradingScreenState extends State<TradingScreen> {
                 ),
                 child: Stack(
                   children: [
-                    Container(
+                    SizedBox(
                       height: MediaQuery.of(context).size.height,
                       width: MediaQuery.of(context).size.width,
                       child: SingleChildScrollView(
@@ -577,8 +691,8 @@ class _TradingScreenState extends State<TradingScreen> {
                                     )),
                                 child: Center(
                                     child: Text(
-                                      '${typ}',
-                                      style: TextStyle(
+                                      typ,
+                                      style: const TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.bold,
                                           color: colors.whiteTemp),
@@ -593,8 +707,8 @@ class _TradingScreenState extends State<TradingScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                Row(
-                                  children: const [
+                                const Row(
+                                  children: [
                                     Padding(
                                       padding: EdgeInsets.all(5.0),
                                       child: Text(
@@ -631,20 +745,20 @@ class _TradingScreenState extends State<TradingScreen> {
                                         },
                                         onChanged: (value) {
                                           totalvalue = 0;
+                                          print('${amount.toString()}___________fds');
+                                          print('${value}___________value');
                                           if (value.isEmpty) {
                                             setState(() {
                                               totalvalue = 0;
                                             });
                                           } else {
                                             setState(() {
-                                              double raj = double.parse(
-                                                  amount.toString());
-                                              int amoun = int.parse(
-                                                  raj.toStringAsFixed(0));
 
-                                              totalvalue =
-                                                  int.parse(value.toString()) *
-                                                      amoun;
+
+                                              double raj = double.parse(amount.toString());
+                                              int amoun = int.parse(raj.toStringAsFixed(0));
+
+                                              totalvalue = int.parse(value.toString()) * amoun;
 
                                               totalamountcontroller.text =
                                                   totalvalue.toString();
@@ -673,8 +787,10 @@ class _TradingScreenState extends State<TradingScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                typ == 'Sell' ? SizedBox() :   Row(
-                                  children: const [
+                                typ == 'Sell'
+                                    ? const SizedBox()
+                                    :  const Row(
+                                  children: [
                                     Padding(
                                       padding: EdgeInsets.all(5.0),
                                       child: Text(
@@ -686,10 +802,10 @@ class _TradingScreenState extends State<TradingScreen> {
                                     ),
                                   ],
                                 ),
-                                typ == 'Sell' ? SizedBox() :  const SizedBox(
+                                typ == 'Sell' ? const SizedBox() :  const SizedBox(
                                   height: 2,
                                 ),
-                                typ == 'Sell' ? SizedBox() :  Card(
+                                typ == 'Sell' ? const SizedBox() :  Card(
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
                                   elevation: 4,
@@ -728,17 +844,17 @@ class _TradingScreenState extends State<TradingScreen> {
                                 Btn(
                                   onPress: () {
                                     if (_formKey.currentState!.validate()) {
-                                      Navigator.pop(context);
+                                         Navigator.pop(context);
                                       if(typ == 'Sell'){
-                                        buyCoupan(typ);
+                                        buySellCoupan(typ);
                                       }else {
-                                        showPPopup(typ);
+                                        paymentMethodPopup(typ);
                                       }
                                     }
                                   },
                                   width: 200,
                                   height: 50,
-                                  title: typ == 'Sell' ?'Sell' :  'Make Payment',
+                                  title: typ == 'Sell' ?'Sell' : 'Make Payment',
                                 ),
                               ]),
                             )
@@ -755,7 +871,6 @@ class _TradingScreenState extends State<TradingScreen> {
           );
         });
   }
-
 
   Widget buildButtons() {
     return Wrap(
@@ -789,30 +904,12 @@ class _TradingScreenState extends State<TradingScreen> {
       style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
     );
   }
-  String amount ='0.0' ;
+
 
   void getData() {
-    /*Future<String> future = getIPAddress('$period');
 
-    future.then((result) {
-      Map parseJson = json.decode(result);
-      List list = parseJson['data'];
-      datas = list
-          .map((item) => KLineEntity.fromJson(item))
-          .toList()
-          .reversed
-          .toList()
-          .cast<KLineEntity>();
-      DataUtil.calculate(datas!);
-      showLoading = false;
-      setState(() {});
-    }).catchError((_) {
-      showLoading = false;
-      setState(() {});
-      print('获取数据失败');
-    });*/
 
-    Future<String> future = myData();//getIPAddress('$period');
+   /* Future<String> future = myData();//getIPAddress('$period');
     future.then((result) {
       Map parseJson = json.decode(result);
       List list = parseJson['data'];
@@ -832,11 +929,12 @@ class _TradingScreenState extends State<TradingScreen> {
       // showLoading = false;
       setState(() {});
       print('获取数据失败');
-    });
+    });*/
   }
 
-  Future<String> myData() async{
-    String result = '';
+  Future<void> myData() async{
+
+   List <dynamic> _rawData = [];
     var headers = {
       'Cookie': 'ci_session=aee89621fdc53ceafa0e31d5f48378699c94d35b'
     };
@@ -850,93 +948,109 @@ class _TradingScreenState extends State<TradingScreen> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      result = await response.stream.bytesToString();
-      print('___________${result}__________');
-    }
+     var result = jsonDecode(await response.stream.bytesToString());
+
+     amount = result['price'];
+
+      (result['data'] as List).forEach((element) {
+
+        int timeStamp = element['time'];
+        double open = double.parse(element['open']);
+        double high = double.parse(element['high']);
+        double low = double.parse(element['low']);
+        double close = double.parse(element['close']);
+        int volume = double.parse(element['vol']).toInt();
+
+        _rawData.add([timeStamp,open,high,low,close,volume]);
+      });
+
+     candles = _rawData.map((row) => CandleData(
+       timestamp: row[0] * 1000,
+       open: row[1]?.toDouble(),
+       high: row[2]?.toDouble(),
+       low: row[3]?.toDouble(),
+       close: row[4]?.toDouble(),
+       volume: row[5]?.toDouble(),
+     )).toList();
+
+     open    =     candles.last.open.toString() ;
+     high    =     candles.last.high.toString() ;
+     low     =     candles.last.low.toString() ;
+     current = amount = result['price'];
+
+
+    setState(() {
+      isLoading = false ;
+    });    }
     else {
+
+      log('${await response.stream.bytesToString()}');
       print(response.reasonPhrase);
     }
-    return result ;
   }
 
-  Future<String> getIPAddress(String period) async {
-    String result = '';
-    var url =
-        'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
+  Future <void> socketSetup() async{
 
-    var response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      result = response.body;
-      log(response.body);
-    } else {
-      print('Failed getting IP address');
-    }
-    return result;
-  }
+    socket.connect();
 
-  void openCheckout() async {
-    //SharedPreferences prefs = await SharedPreferences.getInstance();
-    //String? email = prefs.getString('email');
-    String phone = '9070305953';
-    int amt = totalvalue;
+    socket.send(jsonEncode({"type":"coupon-graph", 'coupon_id' : widget.coupanid}));
 
 
-    print('${phone}_______________');
-    print('${amt}_______________');
+    socket.stream.listen((event) {
 
-    var options = {
-      'key': 'rzp_test_1DP5mmOlF5G5ag',
-      'amount': amt*100,
-      'name': 'Coupon Trad',
-      'description': 'Coupon Trad-user',
-      "currency": "INR",
-      // 'prefill': {'contact': '$phone', 'email': '$email'},
-      'external': {
-        'wallets': ['paytm']
+
+      if(event['type'] =='coupon-graph-updated' && event['coupon_id'].toString() == widget.coupanid ){
+
+        if (event['data'] != null && event['data'].isNotEmpty) {
+          final kline = event['data'][0];
+          log('Event trading: ${event}');
+
+           //amount = event['current'] ;
+          open = event['open'].toString() ;
+          high =event['high'].toString() ;
+          low =event['low'].toString() ;
+          current = event['current'].toString() ;
+
+
+
+
+          int timeStamp = kline['time'];
+          double open1 = double.parse(kline['open']);
+          double high1 = double.parse(kline['high']);
+          double low1 = double.parse(kline['low']);
+          double close1 = double.parse(kline['close']);
+          int volume1 = double.parse(kline['vol']).toInt();
+
+          var newEntity = CandleData(
+            timestamp: timeStamp * 1000,
+            open: open1,
+            high: high1,
+            low: low1,
+            close: close1,
+            volume: volume1.toDouble(),
+          );
+
+
+            // Update or add new candle
+            final index = candles.indexWhere((item) => item.timestamp == newEntity.timestamp);
+            if (index >= 0) {
+              candles[index] = newEntity;
+            } else {
+              candles.add(newEntity);
+              if (candles.length > 200) candles.removeAt(0);
+            }
+
+            if(mounted) {
+            setState(() {});
+          }
+        }
+
       }
-    };
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      debugPrint('Error: $e');
-    }
+
+    });
+
+
   }
 
-  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
 
-    // onSuccessAddMoney();
-    buyCoupan(typee,paymentid: response.paymentId);
-    Fluttertoast.showToast(
-        msg: "Successful",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        fontSize: 16.0);
-    // Navigator.push(context, MaterialPageRoute(builder: (context)=>DashBoardScreen()));
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    // Fluttertoast.showToast(
-    //     msg: "ERROR: " + response.code.toString() + " - " + response.message!,
-    //     toastLength: Toast.LENGTH_SHORT);
-
-    print('${response.error}________error_________');
-    print('${response.code}________code_________');
-    Fluttertoast.showToast(
-        msg: "Payment cancelled by user",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    Fluttertoast.showToast(
-        msg: "EXTERNAL_WALLET: " + response.walletName!,
-        toastLength: Toast.LENGTH_SHORT);
-  }
 }

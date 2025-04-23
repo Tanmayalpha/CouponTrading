@@ -78,8 +78,8 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                           ),
                         ),
                         SizedBox(width: MediaQuery.of(context).size.width/4.5,),
-                        Text(
-                          'Privecy And Policy',
+                        const Text(
+                          'Privacy Policy',
                           style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
@@ -88,7 +88,7 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       ],
                     )),
               ),
-              SizedBox(height: 30,),
+              const SizedBox(height: 30,),
 
 
               privacyyy!=null ?

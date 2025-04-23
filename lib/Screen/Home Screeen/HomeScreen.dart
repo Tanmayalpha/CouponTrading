@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coupon_trading/Api/api_services.dart';
 import 'package:coupon_trading/Model/slider_data_response.dart';
 import 'package:coupon_trading/Screen/Authentification/LoginScreen.dart';
+import 'package:coupon_trading/Screen/services/socket/web_socket.dart';
 import 'package:coupon_trading/Screen/support_screen.dart';
 import 'package:coupon_trading/Screen/trading_Scr.dart';
 import 'package:coupon_trading/constant/constant.dart';
+import 'package:coupon_trading/utils/extentions.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,20 +52,23 @@ class _HomeScreenState extends State<HomeScreen> {
   var lastname;
   var gmaill;
   int currentindex = 0;
-  late Timer timer;
-  List<String> sliderImages = [
-    'https://shotkit.com/wp-content/uploads/2021/06/cool-profile-pic-matheus-ferrero.jpeg',
-    'https://img.freepik.com/free-photo/brunette-blogger-posing-photo_23-2148192223.jpg',
-    'https://img.freepik.com/premium-photo/fashion-red-haired-girl-wear-black-dress-red-hat-posed-trade-shopping-center_151355-1430.jpg',
-    'https://static.vecteezy.com/system/resources/thumbnails/006/631/541/small_2x/portrait-of-fashion-red-haired-girl-on-red-hat-and-black-dress-with-bright-make-up-posed-against-large-window-toned-style-instagram-filters-photo.jpg'
-  ];
+  final  _controller = CarouselController();
 
-  _CarouselSlider1() {
+  late Timer timer;
+
+  List<GetCooupann> coupanList = [];
+  String? name, profile, email;
+  List<SliderDataList>  sliderImageList= [];
+
+
+
+  _carouselSlider1() {
     return CarouselSlider(
+      carouselController: _controller,
         options: CarouselOptions(
             onPageChanged: (index, result) {
               setState(() {
-                _currentPost = index;
+                currentindex = index;
               });
             },
             viewportFraction: 1.0,
@@ -79,15 +86,21 @@ class _HomeScreenState extends State<HomeScreen> {
         }).toList());
   }
 
+  final socket = WebSocketManager();
+
+
+
+  @override
   void initState() {
     super.initState();
     sliderData();
     getCoupanApi();
     getPref();
+    socketSetup();
     /*timer = Timer(Duration(seconds: 1), () {
       getCoupanApi();
     });*/
-    timer = Timer.periodic(Duration(seconds: 1), (Timer t) =>  getCoupanApi());
+    // timer = Timer.periodic(Duration(seconds: 1), (Timer t) =>  getCoupanApi());
 
   }
   @override
@@ -97,8 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
     timer.cancel();
   }
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-  GlobalKey<RefreshIndicatorState>();
+
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   Future<Null> _refresh() {
     return callApi();
@@ -118,214 +131,287 @@ class _HomeScreenState extends State<HomeScreen> {
       key: _refreshIndicatorKey,
       onRefresh: _refresh,
       child: Scaffold(
-        backgroundColor: colors.whiteScaffold,
+        backgroundColor: colors.whiteTemp,
         key: _key,
         drawer: getDrawer(),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  height: 60,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [
-                          colors.secondary,
-                          colors.secondary,
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.02, 1]),
+          child: Column(
+            children: [
 
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(5),
-                      //
-                      bottomRight: Radius.circular(5),
-                    ),
-                    //   color: (Theme.of(context).colorScheme.apcolor)
-                  ),
-                  child: Row(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          _key.currentState!.openDrawer();
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.only(right: 1),
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.dehaze_rounded,
-                              color: colors.whiteTemp,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 3,
-                      ),
-                      const Text(
-                        'Home',
-                        style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: colors.whiteTemp),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: EdgeInsets.only( top: 10,bottom: 10, right: 15),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => WalletScr(),
-                                ));
-                          },
-                          child: Column(
-                            children: const [
-                              Icon(
-                                Icons.account_balance_wallet_outlined,
-                                color: colors.whiteTemp,
-                              ),
-                              Text(
-                                'Wallet',
-                                style: TextStyle(
-                                    fontSize: 10, color: colors.whiteTemp),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Stack(
-                  alignment: Alignment.bottomCenter,
+              Container(
+                height: 60,
+                decoration: context.customGradientBox(),
+                child: Row(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      //height: 200,
-                      width: double.maxFinite,
-                      child: _CarouselSlider1(),
-                    ),
-                    Positioned(
-                      bottom: 20,
-                      // left: 80,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: _buildDots(),
+                    InkWell(
+                      onTap: () {
+                        _key.currentState!.openDrawer();
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 1),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.dehaze_rounded,
+                            color: colors.whiteTemp,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.32,
-                  child: ListView.builder(
-                    primary: false,
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    itemCount: coupanList.length,
-                    itemBuilder: (context, index) {
-                      return InkWell(
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 3,
+                    ),
+                    const Text(
+                      'Home',
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: colors.whiteTemp),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only( top: 10,bottom: 10, right: 15),
+                      child: InkWell(
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => TradingScreen(
-                                  useridd: widget.userId.toString(),
-                                  coupanid: coupanList[index].id,
-                                  amount: coupanList[index].price,
-                                  name: coupanList[index].name,
-                                ),
+                                builder: (context) => WalletScr(),
                               ));
                         },
-                        child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            elevation: 2,
-                            color: Colors.white,
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 80,
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5),
-                                    child: Row(children: [
-                                      SizedBox(
-                                        width:
-                                        MediaQuery.of(context).size.width /
-                                            1.4,
-                                        child: ListTile(
-                                          leading: Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width /
-                                                5,
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    image: NetworkImage(
-                                                        coupanList[index].logo ?? ''),
-                                                    fit: BoxFit.fill)),
-                                          ),
-                                          title: Text(
-                                            "${coupanList[index].name}",
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                                color: colors.secondary),
-                                          ),
-                                          subtitle: Text(
-                                            'Available Stock -${coupanList[index].stock}',
-                                            style: const TextStyle(
-                                                fontSize: 9,
-                                                color: colors.secondary),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(5),
-                                        child: SizedBox(
+                        child: const Column(
+                          children: [
+                            Icon(
+                              Icons.account_balance_wallet_outlined,
+                              color: colors.whiteTemp,
+                            ),
+                            Text(
+                              'Wallet',
+                              style: TextStyle(
+                                  fontSize: 10, color: colors.whiteTemp),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 5,),
+              _carouselSlider1(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: sliderImageList.asMap().entries.map((entry) {
+                  return GestureDetector(
+                    onTap: () => _controller.animateToPage(entry.key),
+                    child: Container(
+                      width: 7.0,
+                      height: 7.0,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : colors.primary)
+                              .withOpacity(currentindex == entry.key ? 0.9 : 0.4)),
+                    ),
+                  );
+                }).toList(),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 1.85,
+                child: ListView.builder(
+                  primary: false,
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: coupanList.length,
+                  itemBuilder: (context, index) {
+                    return couponTile(coupanList[index]) ;
+                    /*InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TradingScreen(
+                                useridd: widget.userId.toString(),
+                                coupanid: coupanList[index].id,
+                                amount: coupanList[index].price,
+                                name: coupanList[index].name,
+                              ),
+                            ));
+                      },
+                      child: Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          elevation: 2,
+                          color: Colors.white,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 80,
+                                width: MediaQuery.of(context).size.width,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Row(children: [
+                                    SizedBox(
+                                      width:
+                                      MediaQuery.of(context).size.width /
+                                          1.4,
+                                      child: ListTile(
+                                        leading: Container(
                                           width: MediaQuery.of(context)
                                               .size
                                               .width /
                                               5,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  image: NetworkImage(
+                                                      coupanList[index].logo ?? ''),
+                                                  fit: BoxFit.fill)),
+                                        ),
+                                        title: Text(
+                                          "${coupanList[index].name}",
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: colors.secondary),
+                                        ),
+                                        subtitle: Text(
+                                          'Available Stock -${coupanList[index].stock}',
+                                          style: const TextStyle(
+                                              fontSize: 9,
+                                              color: colors.secondary),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(5),
+                                      child: SizedBox(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width /
+                                            5,
+                                        child: Center(
                                           child: Center(
-                                            child: Center(
-                                              child: Btn(
-                                                height: 30,
-                                                width: 60,
-                                                title:
-                                                "${coupanList[index].price}",
-                                                onPress: () {},
-                                              ),
+                                            child: Btn(
+                                              height: 30,
+                                              width: 60,
+                                              title:
+                                              "${coupanList[index].price}",
+                                              onPress: () {},
                                             ),
                                           ),
                                         ),
-                                      )
-                                    ]),
-                                  ),
+                                      ),
+                                    )
+                                  ]),
                                 ),
-                              ],
-                            )),
-                      );
-                    },
-                  ),
+                              ),
+                            ],
+                          )),
+                    );*/
+                  },
                 ),
+              ),
 
-                // SizedBox(height: 100,),
-              ],
-            ),
+              // SizedBox(height: 100,),
+            ],
           ),
         ),
       ),
     );
   }
 
-  List<GetCooupann> coupanList = [];
-  String? name, profile, email;
+
+  Widget couponTile(GetCooupann coupan){
+    return ListTile(
+      onTap: () {
+
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TradingScreen(
+                useridd: widget.userId.toString(),
+                coupanid: coupan.id,
+                amount: coupan.price,
+                name: coupan.name,
+              ),
+            ));
+      },
+      leading: CircleAvatar(
+        radius: 15,
+        //backgroundColor: Colors.grey.shade200,
+        backgroundImage: NetworkImage(coupan.logo ?? ''),
+      ),
+      title: Row(
+        children: [
+          SizedBox(
+            width: 150,
+            child: Text(
+              coupan.name ?? '',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          // const SizedBox(width: 4),
+          // Text(
+          //   '/USDT',
+          //   style: const TextStyle(color: Colors.grey, fontSize: 12),
+          // ),
+        ],
+      ),
+      subtitle:  Row(children: [
+        Text(
+          'Available Stock -${coupan.stock}',
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+        const SizedBox(width: 10,),
+
+      ],),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            coupan.price ?? '',
+            style: const TextStyle(/*fontWeight: FontWeight.bold,*/fontSize: 14),
+          ),
+          const SizedBox(width: 4),
+          Container(
+            padding:
+            const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: getChangeColor('${coupan.profitLossPercent}%').withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '${getChangevalue(coupan.profitLossPercent ?? '0.0')}%',
+              style: TextStyle(
+                color: getChangeColor('${{coupan.profitLossPercent}}%'),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+
+        ],
+      ),
+    );
+
+
+  }
+
+  Color getChangeColor(String change) {
+    return change.contains('-') ? Colors.red : Colors.green;
+  }
+
+  String getChangevalue(String change) {
+    return !change.contains('-') ? '+${change}' : change;
+  }
+
+
 
   getPref()async{
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -359,6 +445,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future <void> socketSetup() async{
+
+    socket.connect();
+
+    socket.send(jsonEncode({"type":"coupon-list"}));
+
+
+    socket.stream.listen((event) {
+
+     if(event['type'] == 'coupon-list'){
+
+       coupanList = GetCoupanModel.fromJson(event).data ?? [] ;
+       setState(() {});
+     }
+
+    });
+
+
+  }
+
   void showToast() {
     Fluttertoast.showToast(
         msg: "Already Sign In",
@@ -369,30 +475,9 @@ class _HomeScreenState extends State<HomeScreen> {
         textColor: Colors.black);
   }
 
-  int _currentPost = 0;
 
-  List<Widget> _buildDots() {
-    List<Widget> dots = [];
-    if (false) {
-    } else {
-      for (int i = 0; i < sliderImageList.length; i++) {
-        dots.add(
-          Container(
-            margin: EdgeInsets.all(1.5),
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _currentPost == i ? colors.secondary : colors.primary,
-            ),
-          ),
-        );
-      }
-    }
-    return dots;
-  }
 
-  getDrawer() {
+ Widget getDrawer() {
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width / 1.3,
@@ -401,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             height: 120,
-            decoration:  BoxDecoration(
+            decoration:  const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
@@ -492,7 +577,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 40,
                 ),
               ),
-              title: Text(
+              title: const Text(
                 'Home',
               ),
               onTap: () {
@@ -550,7 +635,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AboutUsView()),
+                MaterialPageRoute(builder: (context) => const AboutUsView()),
               );
             },
           ),
@@ -561,13 +646,13 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 40,
               color: colors.black54,
             ),
-            title: Text(
-              'Privecy Policy',
+            title: const Text(
+              'Privacy Policy',
             ),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PrivacyPolicyView()),
+                MaterialPageRoute(builder: (context) => const PrivacyPolicyView()),
               );
             },
           ),
@@ -610,7 +695,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       actions: <Widget>[
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: colors.secondary),
+                              backgroundColor: colors.secondary),
                           child: const Text("YES"),
                           onPressed: () async{
                             SharedPreferences pref = await SharedPreferences.getInstance();
@@ -621,7 +706,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: colors.secondary),
+                              backgroundColor: colors.secondary),
                           child: Text("NO"),
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -638,9 +723,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  List<SliderDataList>  sliderImageList= [];
 
-  sliderData() async{
+ Future<void> sliderData() async{
     var headers = {
       'Cookie': 'ci_session=ea20ce6e5b4f3265813ff387bf04c70abb75c16b'
     };
@@ -666,9 +750,4 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class NewsCard {
-  String? title;
-  String? image;
 
-  NewsCard({this.title, this.image});
-}

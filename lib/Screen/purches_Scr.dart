@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coupon_trading/Api/api_services.dart';
+import 'package:coupon_trading/Custom%20Widget/gradient_button.dart';
 import 'package:coupon_trading/Model/average_profit_loss_model.dart';
 import 'package:coupon_trading/Model/purchase_coupon_response.dart';
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../Color/Color.dart';
@@ -13,21 +16,31 @@ import 'package:http/http.dart' as http;
 
 import '../Custom Widget/AppBtn.dart';
 
-class Purches_Screen extends StatefulWidget {
-  const Purches_Screen({Key? key}) : super(key: key);
+class PortfolioScreen extends StatefulWidget {
+  const PortfolioScreen({Key? key}) : super(key: key);
 
   @override
-  State<Purches_Screen> createState() => _Purches_ScreenState();
+  State<PortfolioScreen> createState() => _PortfolioScreenState();
 }
 
-class _Purches_ScreenState extends State<Purches_Screen> {
+class _PortfolioScreenState extends State<PortfolioScreen> {
   TextEditingController quantitycontroller = TextEditingController();
   TextEditingController totalamountcontroller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   int totalvalue = 0;
 
   int selectedIndex = 0;
+   DateTime fromDate = DateTime(2019, 10, 14);
+   DateTime toDate = DateTime.now() ;
+ // bool isPrimary = true ;
+  String? uid;
+  List<PurchaseCouponData> purchasedList = [];
+  String? averageProfitLossMsg;
+  bool? isProfit ;
 
+  List<ProfitLossData> averagePList = [];
+  bool isLoading = false;
+  late Timer timer;
 
   @override
   void initState() {
@@ -333,30 +346,328 @@ class _Purches_ScreenState extends State<Purches_Screen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    final dateFormat = DateFormat('dd MMM yyyy');
+    return  SafeArea(
       child: Scaffold(
+        backgroundColor: const Color(0xFFF7F9FB),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          title: const Text(
+            'My Portfolio',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          centerTitle: true,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(14.0),
+          child: Column(
+            children: [
+              // Total P/L Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isProfit ?? false
+                        ? [Colors.green.shade300, Colors.green.shade600]
+                        : [Colors.red.shade300, Colors.red.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isProfit ?? false
+                          ? Colors.green.shade200.withOpacity(0.3)
+                          : Colors.red.shade200.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Total Profit / Loss",
+                        style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${isProfit ?? false ? '+' : ''}\$${averageProfitLossMsg ?? '--'}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+           Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F7FA),
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: (){
+              _selectDate(context,true);
+            },
+            child: _buildDateBlock(
+              icon: Icons.calendar_today,
+              label: 'From date',
+              date: dateFormat.format(fromDate),
+              isBold: true,
+              isPrimary: true,
+            ),
+          ),
+          const SizedBox(
+            height: 40,
+            child: VerticalDivider(
+              width: 32,
+              thickness: 1,
+              color: Colors.grey,
+            ),
+          ),
+          InkWell(
+            onTap: (){
+              _selectDate(context,false);
+
+            },
+            child: _buildDateBlock(
+              icon: Icons.calendar_today,
+              label: 'To date',
+              date: dateFormat.format(toDate),
+              isBold: true,
+              isPrimary: true,
+            ),
+          ),
+        ],
+      ),),
+
+              // History
+              Expanded(
+                child: ListView.separated(
+                  itemCount: purchasedList.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+
+
+                    var item = purchasedList[index];
+                    final bool isPLPositive = item.isProfit ?? false;
+                    int quantity = int.parse(purchasedList[index].quantity ?? '0');
+
+                    return Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade200,
+                                blurRadius: 10,
+                                offset: const Offset(0, 6),
+                              )
+                            ],
+                          ),
+                          child: Column(children: [
+                            Row(
+                              children: [
+                                // Avatar/Icon placeholder
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.currency_exchange, size: 28),
+                                ),
+                                const SizedBox(width: 12),
+
+                                // Trade info
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                        Text(item.purchaseAmount ?? '',
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600)),
+                                        Text(dateFormat.format(DateTime.parse(item.createdAt ?? '')),
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600))
+                                      ],),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(children: [
+                                            _tag("Qty", item.quantity.toString()),
+                                            _tag("Buy", "\₹${item.amount}"),
+                                          ],),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: isPLPositive
+                                                  ? Colors.green.shade100
+                                                  : Colors.red.shade100,
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              "${isPLPositive ? '+' : ''}₹${item.profitLossAmount}",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                isPLPositive ? Colors.green : Colors.red[600],
+                                              ),
+                                            ),
+                                          ),
+
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          _tag("Now", "₹${item.currentValue}"),
+                                          _tag("Value", "₹${item.currentAmount}"),
+                                          quantity > 0? Ink(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(20),color: Colors.black
+                                            ),
+                                            child: InkWell(
+                                              onTap: (){
+                                                selectedIndex = index ;
+                                                popshow2(
+                                                    item.currentValue.toString(),
+                                                    item.coupanId.toString(),
+                                                    'Sell',
+                                                    item.amount ?? '', index);
+                                              },
+                                              child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 5),
+                                            margin: const EdgeInsets.only(right: 5),
+
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  colors.primary.withOpacity(0.9),
+                                                  colors.primary,
+                                                ],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.circular(15),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.white.withOpacity(0.8),
+                                                  offset: const Offset(-3, -3),
+                                                  blurRadius: 6,
+                                                  spreadRadius: 1,
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.2),
+                                                  offset: const Offset(3, 3),
+                                                  blurRadius: 6,
+                                                  spreadRadius: 1,
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Text('Sell', style: TextStyle(color: Colors.white),),),),) : const SizedBox(),
+
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+
+                                // P/L Badge
+
+                              ],
+                            ),
+                            //SizedBox(height: 10,),
+                            //quantity > 0? AppButton(title: 'Sell',width: 120,height: 40,) : SizedBox(),
+                           /* quantity < 1
+                                ? const SizedBox()
+                                : Center(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  selectedIndex = index ;
+                                  popshow2(
+                                      item.currentValue.toString(),
+                                      item.coupanId.toString(),
+                                      'Sell',
+                                      item.amount ?? '', index);
+                                  // if (_formKey.currentState!.validate()) {
+                                  //   Navigator.pop(context);
+                                  //   if(typ == 'Sell'){
+                                  //     buyCoupan(typ);
+                                  //   }else {
+                                  //     // showPPopup(typ);
+                                  //   }
+                                  // }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.primary,
+                                    fixedSize: Size(
+                                        MediaQuery.of(context).size.width / 2, 35),
+                                    shape: const StadiumBorder()),
+                                child: const Text("Sell",style: TextStyle(color: Colors.white),),
+                              ),
+                            )*/
+                          ],),
+                        ),
+                        quantity < 1
+                            ? Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.black54.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+
+                            ],
+                          ),
+                          width: double.maxFinite,
+
+                        )
+                            : const SizedBox(),
+                        quantity < 1 ?   const SizedBox(
+                            height: 100,
+                            width: double.maxFinite,
+                            child: Center(child: Text('SOLD',style: TextStyle(fontSize: 25,color: Colors.white,fontWeight: FontWeight.bold),))):const SizedBox()
+                      ],
+                    );
+
+
+                  },
+                ),
+              ),
+            ],
+          ),),
+      )
+
+
+
+
+      /*Scaffold(
         body: SingleChildScrollView(
           child: Column(children: [
             Container(
               width: MediaQuery.of(context).size.width,
               height: 60,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [
-                      colors.primary,
-                      colors.secondary,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.02, 1]),
-
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(1),
-                  //
-                  bottomRight: Radius.circular(1),
-                ),
-                //   color: (Theme.of(context).colorScheme.apcolor)
-              ),
+              decoration: context.customGradientBox(),
               child: const Center(
                 child: Text(
                   'Portfolio',
@@ -437,6 +748,21 @@ class _Purches_ScreenState extends State<Purches_Screen> {
             )
           ]),
         ),
+      ),*/
+    );
+  }
+
+  Widget _tag(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8, top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '$label: $value',
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -665,14 +991,7 @@ class _Purches_ScreenState extends State<Purches_Screen> {
     );
   }
 
-  String? uid;
-  late Timer timer;
-  List<PurchaseCouponData> purchasedList = [];
-  String? averageProfitLossMsg;
-  bool? isProfit ;
 
-  List<ProfitLossData> averagePList = [];
-  bool isLoading = false;
 
   getUserPref() async {
     isLoading = true;
@@ -680,7 +999,8 @@ class _Purches_ScreenState extends State<Purches_Screen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     uid = prefs.getString('userId');
     getProfitLossData();
-    timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
+    getCoupons();
+    timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
       getCoupons();
       getProfitLossData();
     });
@@ -694,17 +1014,18 @@ class _Purches_ScreenState extends State<Purches_Screen> {
     };
     var request = http.MultipartRequest(
         'POST', Uri.parse('${ApiService.purchasedCoupans}'));
-    request.fields.addAll({'user_id': uid ?? '34'});
+    request.fields.addAll({'user_id': uid ?? '34', 'start_date': fromDate.toString(),"end_date":toDate.toString()});
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
-    print('___________${request.fields}__________');
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
       purchasedList =
           PurchaseCouponsResponse.fromJson(jsonDecode(result)).data ?? [];
+
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -746,4 +1067,63 @@ class _Purches_ScreenState extends State<Purches_Screen> {
       });
     }
   }
+
+
+  Widget _buildDateBlock({
+    required IconData icon,
+    required String label,
+    required String date,
+    bool isBold = false,
+    bool isPrimary = false,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: isPrimary ? Colors.blue : Colors.grey, size: 24),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: isPrimary ? Colors.blueGrey : Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              date,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isPrimary ? Colors.blue.shade900 : Colors.grey.shade700,
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+}
+
+  Future<void> _selectDate(BuildContext context, bool isFrom) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isFrom ? fromDate : toDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isFrom) {
+          fromDate = picked;
+        } else {
+          toDate = picked;
+        }
+      });
+      getCoupons();
+    }
+  }
+
+
 }

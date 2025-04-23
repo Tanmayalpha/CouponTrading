@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'package:coupon_trading/Screen/Authentification/SendOTPScreen.dart';
 import 'package:coupon_trading/constant/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import '../../Color/Color.dart';
 import '../../Custom Widget/AppBtn.dart';
 import '../../Model/signInmodel.dart';
 import '../Home Screeen/bottombar.dart';
+import 'ForgetPasswordScreen.dart';
 import 'Signupscreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -54,12 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
       'Cookie': 'ci_session=ecadd729e7ab27560c282ba3660d365c7e306ca0'
     };
     var request = http.MultipartRequest(
-        'POST', Uri.parse('${ApiService.login}'));
-    // var request = http.MultipartRequest('POST', Uri.parse('${baseUrl}login'));
+        'POST', Uri.parse(ApiService.login));
     request.fields.addAll({
-      'email': '${emailController.text}',
-      'password': '${passwordController.text}',
-      'fcm_id': '${token}'
+      'email': emailController.text,
+      'password': passwordController.text,
+      'fcm_id': '$token'
     });
     print("Checking all fields here ${request.fields}");
     request.headers.addAll(headers);
@@ -100,11 +101,8 @@ class _LoginScreenState extends State<LoginScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 10,right: 10),
                 child: Container(
-
-
-
-                    width: double.maxFinite,
-                    decoration: BoxDecoration(
+                     width: double.maxFinite,
+                    decoration: const BoxDecoration(
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(20),
                           topLeft: Radius.circular(20)),
@@ -235,16 +233,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: InkWell(
                                     onTap: () {
-                                      /*Navigator.push(
+                                      Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  UpdatePassword()));*/
+                                                  const ForgetPasswordScreen()));
                                     },
-                                    child: Row(
+                                    child: const Row(
                                       mainAxisAlignment:
                                       MainAxisAlignment.end,
-                                      children: const [
+                                      children: [
                                         Text(
                                           "Forgot Password?",
                                           style: TextStyle(
@@ -298,8 +296,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         onTap: () {
                                           Navigator.push(context,
                                               MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SignupScreen(),));
+                                                builder: (context) => const SendOTPScreen(),));
+
                                         },
                                         child: const Text("SignUp", style: TextStyle(
                                             color: colors.secondary,
@@ -384,16 +382,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 
-    void showToast(String msg) {
-      Fluttertoast.showToast(
-          msg: msg,
-          toastLength: Toast.LENGTH_LONG,
-          // gravity: ToastGravity.TOP,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.white,
-          textColor: Colors.black);
-    }
 
 
 
+
+}
+
+void showToast(String msg) {
+  Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_LONG,
+      // gravity: ToastGravity.TOP,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.white,
+      textColor: Colors.black);
 }

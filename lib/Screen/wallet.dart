@@ -5,8 +5,10 @@ import 'package:coupon_trading/Model/add_wallet_balance_response.dart';
 import 'package:coupon_trading/Model/get_profile.dart';
 import 'package:coupon_trading/Model/walletHistory.dart';
 import 'package:coupon_trading/Model/withdrawal_request_response.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -133,6 +135,13 @@ class _WalletScrState extends State<WalletScr> {
                                     child: Container(
                                         height: 50,
                                         width: 120,
+                                        decoration: BoxDecoration(
+                                          color: isSelected
+                                              ? colors.secondary
+                                              : colors.whiteTemp,
+                                          // border: Border.all(color: AppColors.AppbtnColor),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
                                         child:  Center(
                                           child: Text(
                                             'Add Amount',
@@ -143,13 +152,6 @@ class _WalletScrState extends State<WalletScr> {
                                               fontSize: 16,
                                             ),
                                           ),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: isSelected
-                                              ? colors.secondary
-                                              : colors.whiteTemp,
-                                          // border: Border.all(color: AppColors.AppbtnColor),
-                                          borderRadius: BorderRadius.circular(10),
                                         )),
                                   ),
                                   InkWell(
@@ -324,16 +326,14 @@ class _WalletScrState extends State<WalletScr> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child:  Center(
-                                      child: const Text("Wallet History",
-                                        style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                                      child:  Text("Wallet History",
+                                        style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: isSelected2 ? colors.whiteTemp : colors.blackTemp),),
                                     )),
                               ),
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    // Navigator.of(context).push(MaterialPageRoute(
-                                    //   builder: (context) => NextPage(),
-                                    // ));
+
                                     isSelected2 = false;
                                   });
                                 },
@@ -346,9 +346,9 @@ class _WalletScrState extends State<WalletScr> {
                                             ? colors.secondary
                                             : colors.whiteTemp,
                                         borderRadius: BorderRadius.circular(10)),
-                                    child: Center(child: const Text("Withdrawal History",
+                                    child: Center(child:  Text("Withdrawal History",
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),))),
+                                      style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: !isSelected2 ? colors.whiteTemp : colors.blackTemp),))),
                               ),
                             ],
                           ),),
@@ -360,7 +360,9 @@ class _WalletScrState extends State<WalletScr> {
                       const SizedBox(width: 10,),
                       const Text("WalletHistory",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
                     ],),),*/
-                      isSelected2 ? walletHistorymodel?.data == null ? Center(child: CircularProgressIndicator(color: colors.primary,),) : walletHistorymodel?.data?.isEmpty ?? true ?
+                      isSelected2 ? walletHistorymodel?.data == null
+                          ? const Center(child: CircularProgressIndicator(color: colors.primary,),)
+                          : walletHistorymodel?.data?.isEmpty ?? true ?
                       const Text("Not Available",): ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -402,12 +404,35 @@ class _WalletScrState extends State<WalletScr> {
                                       ),
                                     ],
                                   ),
+                                  const SizedBox(height: 10,),
+                                  Row(
+                                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Message : ',
+                                        style: TextStyle(
+                                            fontSize: 14.0, fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        width: 200,
+                                        child: Text(
+                                          '${item?.message}',
+                                          style: const TextStyle(
+                                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
                                 ],
                               ),
                             ),
                           );
                         },)
-                          : withdrawalRequestData?.data == null ? Center(child: CircularProgressIndicator(color: colors.primary,),) : withdrawalRequestData?.data?.isEmpty ?? true ?
+                          : withdrawalRequestData?.data == null
+                          ? const Center(child: CircularProgressIndicator(color: colors.primary,),)
+                          : withdrawalRequestData?.data?.isEmpty ?? true ?
                       const Text("Not Available",): ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -433,7 +458,7 @@ class _WalletScrState extends State<WalletScr> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Payment Adress: ${item?.paymentAddress}',
+                                    'Payment Address: ${item?.paymentAddress}',
                                     style: const TextStyle(
                                         fontSize: 14.0, fontWeight: FontWeight.bold),
                                   ),
@@ -455,6 +480,24 @@ class _WalletScrState extends State<WalletScr> {
                                         'Date : ${item?.dateCreated}',
                                         style: const TextStyle(
                                             fontSize: 14.0, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+
+                                    children: [
+                                      const Text(
+                                        'Message: ',
+                                        style: TextStyle(
+                                            fontSize: 14.0, fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        width: 150,
+                                        child: Text(
+                                          '${item?.remarks}',
+                                          style: const TextStyle(
+                                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -720,7 +763,7 @@ class _WalletScrState extends State<WalletScr> {
     var headers = {
       'Cookie': 'ci_session=2694555c90449546e1b3528e780ad0e1cd63b74d'
     };
-    var request = http.MultipartRequest('POST', Uri.parse('https://developmentalphawizz.com/coupan-trading/app/v1/api/get_withdrawl_request'));
+    var request = http.MultipartRequest('POST', Uri.parse(ApiService.getWithdrawHistory));
     request.fields.addAll({
       'user_id': uid ?? '27'
     });

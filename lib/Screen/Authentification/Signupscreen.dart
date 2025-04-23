@@ -12,7 +12,8 @@ import '../../Custom Widget/AppBtn.dart';
 import 'LoginScreen.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({Key? key,this.mobile}) : super(key: key);
+  final String? mobile ;
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -43,6 +44,13 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController bankNameController = TextEditingController();
   TextEditingController ifscController = TextEditingController();
   TextEditingController accountNameController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    numbercontroller.text = widget.mobile ?? '' ;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +87,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           const SizedBox(
                             height: 20,
                           ),
-                          Text(
+                          const Text(
                             "SignUp",
                             style: TextStyle(
                                 color: colors.blackTemp,
@@ -135,7 +143,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   //   ),
                                   // ),
 
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   Card(
@@ -368,6 +376,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                       child: Center(
                                         child: TextFormField(
                                           maxLength: 10,
+                                          readOnly: true,
                                           controller: numbercontroller,
                                           // obscureText: _isHidden ? true : false,
                                           keyboardType: TextInputType.number,

@@ -2,6 +2,7 @@
 
 import 'package:coupon_trading/Screen/Home%20Screeen/HomeScreen.dart';
 import 'package:coupon_trading/Screen/purches_Scr.dart';
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -46,8 +47,8 @@ class _Bottom_BarState extends State<Bottom_Bar> {
   Widget build(BuildContext context) {
     List pages1 = [
       HomeScreen(userId: widget.userId.toString()),
-      Purches_Screen(),
-      EditeProfile(),
+      const PortfolioScreen(),
+      const EditeProfile(),
 
     ];
     return WillPopScope(
@@ -57,19 +58,19 @@ class _Bottom_BarState extends State<Bottom_Bar> {
             barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text("Confirm Exit"),
-                content: Text("Are you sure you want to exit?"),
+                title: const Text("Confirm Exit"),
+                content: const Text("Are you sure you want to exit?"),
                 actions: <Widget>[
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: colors.secondary),
-                    child: Text("YES"),
+                    style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
+                    child: const Text("YES", style: TextStyle(color: colors.whiteTemp),),
                     onPressed: () {
                       SystemNavigator.pop();
                     },
                   ),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: colors.secondary),
-                    child: Text("NO"),
+                    style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
+                    child: const Text("NO",style: TextStyle(color: colors.whiteTemp)),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -87,15 +88,18 @@ class _Bottom_BarState extends State<Bottom_Bar> {
           ),
 
 
-          bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: colors.secondary,
+          bottomNavigationBar: Container(
+            decoration: context.customGradientBox(),
+            child:
+            BottomNavigationBar(
+            backgroundColor: Colors.transparent,
             //  elevation: 1,
             items:  const <BottomNavigationBarItem>[
 
               BottomNavigationBarItem(
 
-                  label: 'Home',
-                  icon: Icon(Icons.home)),
+                label: 'Home',
+                icon: Icon(Icons.home),),
               BottomNavigationBarItem(
 
 
@@ -124,7 +128,7 @@ class _Bottom_BarState extends State<Bottom_Bar> {
 
 
 
-          ),
+          ),),
 
 
 

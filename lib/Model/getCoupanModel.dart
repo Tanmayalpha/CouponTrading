@@ -66,6 +66,7 @@ class GetCooupann {
     String? description,
     String? status,
     String? logo,
+    String? profitLossPercent,
     String? createdAt,
     String? updatedAt,}){
     _id = id;
@@ -79,14 +80,15 @@ class GetCooupann {
   }
 
   GetCooupann.fromJson(dynamic json) {
-    _id = json['id'];
+    _id = json['id'].toString();
     _logo = json['logo'];
+    _profitLossPercent = json['profit_loss_percent'];
 
     _name = json['name'];
-    _stock = json['stock'];
+    _stock = json['stock'].toString();
     _price = json['price'];
     _description = json['description'];
-    _status = json['status'];
+    _status = json['status'].toString();
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
   }
@@ -99,6 +101,7 @@ class GetCooupann {
   String? _logo;
   String? _createdAt;
   String? _updatedAt;
+  String? _profitLossPercent;
 
   GetCooupann copyWith({  String? id,
     String? name,
@@ -107,6 +110,7 @@ class GetCooupann {
     String? description,
     String? status,
     String? logo,
+    String? profitLossPercent,
     String? createdAt,
     String? updatedAt,
   }) => GetCooupann(  id: id ?? _id,
@@ -117,7 +121,8 @@ class GetCooupann {
       status: status ?? _status,
       createdAt: createdAt ?? _createdAt,
       updatedAt: updatedAt ?? _updatedAt,
-      logo: logo ?? _logo
+      logo: logo ?? _logo,
+    profitLossPercent: profitLossPercent ?? _profitLossPercent
   );
   String? get id => _id;
   String? get name => _name;
@@ -128,6 +133,7 @@ class GetCooupann {
   String? get logo => _logo;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
+  String? get profitLossPercent => _profitLossPercent;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
