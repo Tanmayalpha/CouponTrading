@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:coupon_trading/Api/api_services.dart';
 import 'package:coupon_trading/Custom%20Widget/gradient_button.dart';
@@ -40,7 +41,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
 
   List<ProfitLossData> averagePList = [];
   bool isLoading = false;
-  late Timer timer;
+  late Timer _timer;
 
   @override
   void initState() {
@@ -52,7 +53,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    timer.cancel();
+    _timer.cancel();
   }
 
   var str = 'profit';
@@ -387,11 +388,9 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Total Profit / Loss",
-                        style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const Text("Total Profit / Loss", style: TextStyle(color: Colors.white70, fontSize: 14)),
                     const SizedBox(height: 6),
-                    Text(
-                      '${isProfit ?? false ? '+' : ''}\$${averageProfitLossMsg ?? '--'}',
+                    Text('${isProfit ?? false ? '+' : ''}₹${averageProfitLossMsg ?? '--'}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -486,7 +485,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                                     color: Colors.grey.shade100,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(Icons.currency_exchange, size: 28),
+                                  child: const Icon(Icons.sell_outlined, size: 28),
                                 ),
                                 const SizedBox(width: 12),
 
@@ -543,7 +542,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                                         children: [
                                           _tag("Now", "₹${item.currentValue}"),
                                           _tag("Value", "₹${item.currentAmount}"),
-                                          quantity > 0? Ink(
+                                          quantity > 0 ? Ink(
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(20),color: Colors.black
                                             ),
@@ -643,11 +642,11 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
 
                         )
                             : const SizedBox(),
-                        quantity < 1 ?   const SizedBox(
+                        quantity < 1 ?    SizedBox(
                             height: 100,
-                            width: double.maxFinite,
-                            child: Center(child: Text('SOLD',style: TextStyle(fontSize: 25,color: Colors.white,fontWeight: FontWeight.bold),))):const SizedBox()
-                      ],
+                            width: 100,
+                            child: Image.asset('assets/images/soldOut.png',), ) :SizedBox()
+                      ] ,
                     );
 
 
@@ -1000,7 +999,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
     uid = prefs.getString('userId');
     getProfitLossData();
     getCoupons();
-    timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
       getCoupons();
       getProfitLossData();
     });
@@ -1013,17 +1012,17 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
       'Cookie': 'ci_session=03ddbd7128c202f8453a9d857d8722f0f2477337'
     };
     var request = http.MultipartRequest(
-        'POST', Uri.parse('${ApiService.purchasedCoupans}'));
+        'POST', Uri.parse(ApiService.purchasedCoupans));
     request.fields.addAll({'user_id': uid ?? '34', 'start_date': fromDate.toString(),"end_date":toDate.toString()});
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
+
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
-      purchasedList =
-          PurchaseCouponsResponse.fromJson(jsonDecode(result)).data ?? [];
+      purchasedList = PurchaseCouponsResponse.fromJson(jsonDecode(result)).data ?? [];
 
       if (!mounted) return;
       setState(() {

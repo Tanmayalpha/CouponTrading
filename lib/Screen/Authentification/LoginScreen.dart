@@ -17,6 +17,7 @@ import 'package:http/http.dart'as http;
 import '../../Api/api_services.dart';
 import '../../Color/Color.dart';
 import '../../Custom Widget/AppBtn.dart';
+import '../../Custom Widget/gradient_button.dart';
 import '../../Model/signInmodel.dart';
 import '../Home Screeen/bottombar.dart';
 import 'ForgetPasswordScreen.dart';
@@ -90,11 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 0.75),
-                child: Container(
-                    height: MediaQuery.of(context).size.height / 5,
+                padding: const EdgeInsets.only(top: 40),
+                child: SizedBox(
+                    height: 130,
+                    width: 100,
                     child: Image.asset(
-                      "assets/images/splashlogo.png",
+                      "assets/images/klinTradeLogo.png",
                       scale: 6.2,
                     )),
               ),
@@ -257,36 +259,32 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                Btn(
-                                  height: 50,
-                                  width: 320,
-                                  title: isLoading1 == true
-                                      ? "Please wait......"
-                                      : 'Sign In',
-                                  onPress: () {
+
+                                AppButton(width: double.maxFinite,title: isLoading1? 'Please wait...': 'Sign in',onTab: isLoading ? null : (){
+                                  setState(() {
+                                    isLoading1 = true;
+                                  });
+                                  if (_formKey.currentState!.validate()) {
+                                    signinapi();
+
+
+                                  } else {
                                     setState(() {
-                                      isLoading1 = true;
+                                      isLoading1 = false;
                                     });
-                                    if (_formKey.currentState!.validate()) {
-                                      signinapi();
+                                    Fluttertoast.showToast(
+                                        msg:
+                                        "Please Enter Correct Credentials!!");
+                                  }
 
+                                },height: 50,),
 
-                                    } else {
-                                      setState(() {
-                                        isLoading1 = false;
-                                      });
-                                      Fluttertoast.showToast(
-                                          msg:
-                                          "Please Enter Correct Credentials!!");
-                                    }
-                                  },
-                                ),
 
 
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text("Dont have an account?",
+                                    const Text("Don't have an account?",
                                       style: TextStyle(color: colors.secondary,
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold),),

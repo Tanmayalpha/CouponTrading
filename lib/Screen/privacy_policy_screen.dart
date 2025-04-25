@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 
@@ -41,25 +42,10 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: 60,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [
-                        colors.primary,
-                        colors.secondary,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.02, 1]),
-
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(1),
-                    //
-                    bottomRight: Radius.circular(1),
-                  ),
-                  //   color: (Theme.of(context).colorScheme.apcolor)
-                ),
+                decoration: context.customGradientBox(),
                 child: Center(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
 
                         InkWell(
@@ -67,7 +53,7 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                             Navigator.pop(context);
                           },
                           child: const Padding(
-                            padding: EdgeInsets.only(right: 5),
+                            padding: EdgeInsets.only(left: 10),
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(
@@ -77,7 +63,6 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                             ),
                           ),
                         ),
-                        SizedBox(width: MediaQuery.of(context).size.width/4.5,),
                         const Text(
                           'Privacy Policy',
                           style: TextStyle(
@@ -85,10 +70,23 @@ class _PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                               fontWeight: FontWeight.bold,
                               color: colors.whiteTemp),
                         ),
+                        InkWell(
+                          onTap: () {
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: Colors.transparent,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     )),
               ),
-              const SizedBox(height: 30,),
 
 
               privacyyy!=null ?

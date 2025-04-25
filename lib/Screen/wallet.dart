@@ -5,6 +5,7 @@ import 'package:coupon_trading/Model/add_wallet_balance_response.dart';
 import 'package:coupon_trading/Model/get_profile.dart';
 import 'package:coupon_trading/Model/walletHistory.dart';
 import 'package:coupon_trading/Model/withdrawal_request_response.dart';
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,52 +49,48 @@ class _WalletScrState extends State<WalletScr> {
                 Container(
                   width: MediaQuery.of(context).size.width,
                   height: 60,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [
-                          colors.primary,
-                          colors.secondary,
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.02, 1]),
+                  decoration: context.customGradientBox(),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
 
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(1),
-                      //
-                      bottomRight: Radius.circular(1),
-                    ),
-                    //   color: (Theme.of(context).colorScheme.apcolor)
-                  ),
-                  child: Center(
-                      child: Row(
-                        children: [
-
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.only(right: 5),
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Icon(
-                                  Icons.arrow_back_ios,
-                                  color: colors.whiteTemp,
-                                ),
-                              ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: colors.whiteTemp,
                             ),
                           ),
-                          SizedBox(width: MediaQuery.of(context).size.width/3.3,),
-                          const Text(
-                            'Wallet',
-                            style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: colors.whiteTemp),
+                        ),
+                      ),
+                      const Text(
+                        'Wallet',
+                        style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: colors.whiteTemp),
+                      ),
+                      InkWell(
+                        onTap: () {},
+                        child: const Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.transparent,
+                            ),
                           ),
-                        ],
-                      )),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 30,),
 
@@ -101,93 +98,137 @@ class _WalletScrState extends State<WalletScr> {
                   padding: const EdgeInsets.only(left: 12.0, right: 12),
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.red.shade300, Colors.red.shade600],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.shade200.withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            )
+                          ],
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Center(child: Text("Available Balance",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w500),)),
-                            Text("₹ ${balance ?? '0.0'}",style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                          ],),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Available Balance",
+                                  style: TextStyle(color: Colors.white70, fontSize: 14)),
+                              const SizedBox(height: 6),
+                              Text(
+                                '₹ ${balance ?? '0.0'}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            ],
+                          ),
+                          const Icon(Icons.account_balance_wallet,size: 40,color: colors.whiteTemp,)
+                        ],),
                       ),
                       const SizedBox(height: 20,),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: colors.whiteTemp,
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        isSelected = true;
-                                      });
-                                    },
-                                    child: Container(
-                                        height: 50,
-                                        width: 120,
-                                        decoration: BoxDecoration(
-                                          color: isSelected
-                                              ? colors.secondary
-                                              : colors.whiteTemp,
-                                          // border: Border.all(color: AppColors.AppbtnColor),
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child:  Center(
-                                          child: Text(
-                                            'Add Amount',
-                                            style: TextStyle(
-                                              color: isSelected
-                                                  ? Color(0xffffffff)
-                                                  : colors.secondary,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        // Navigator.of(context).push(MaterialPageRoute(
-                                        //   builder: (context) => NextPage(),
-                                        // ));
-                                        isSelected = false;
-                                      });
-                                    },
-                                    child: Container(
-                                        height: 50,
-                                        width: 130,
-                                        decoration: BoxDecoration(
-                                            color: !isSelected
-                                                ? colors.secondary
-                                                : colors.whiteTemp,
-                                            borderRadius: BorderRadius.circular(10)),
-                                        child: Center(
-                                          child: Text(
-                                            'Withdraw Amount',
-                                            style: TextStyle(
-                                              color: !isSelected
-                                                  ? colors.whiteTemp
-                                                  : colors.secondary,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                ],
-                              ),),
-                          )
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)
+                        ),
+                        child: Container(
 
-                        ],
+                          decoration: BoxDecoration(
+                              color: colors.whiteTemp,
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    isSelected = true;
+                                  });
+                                },
+                                child: Container(
+                                    height: 50,
+                                    padding: const EdgeInsets.all(10),
+
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? colors.secondary
+                                          : colors.whiteTemp,
+
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          isSelected ? colors.primary.withOpacity(0.7) : colors.whiteTemp,
+                                          isSelected ? colors.secondary : colors.whiteTemp,
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        stops: [0.02, 1],
+                                      ),
+
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child:  Center(
+                                      child: Text(
+                                        'Add Amount',
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? colors.whiteTemp
+                                              : colors.secondary,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    )),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    // Navigator.of(context).push(MaterialPageRoute(
+                                    //   builder: (context) => NextPage(),
+                                    // ));
+                                    isSelected = false;
+                                  });
+                                },
+                                child: Container(
+                                    height: 50,
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        color: !isSelected
+                                            ? colors.secondary
+                                            : colors.whiteTemp,
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            isSelected ? Colors.white : colors.primary.withOpacity(0.7),
+                                            isSelected ? Colors.white : colors.secondary,
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          stops: [0.02, 1],
+                                        ),
+                                        borderRadius: BorderRadius.circular(10)),
+                                    child: Center(
+                                      child: Text(
+                                        'Withdraw Amount',
+                                        style: TextStyle(
+                                          color: !isSelected
+                                              ? colors.whiteTemp
+                                              : colors.secondary,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    )),
+                              ),
+                            ],
+                          ),),
                       ),
                       const SizedBox(height: 20,),
                       Material(
@@ -254,31 +295,52 @@ class _WalletScrState extends State<WalletScr> {
 
                               },
                               child: Container(
-                                padding: EdgeInsets.all(5),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: colors.secondary,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      colors.primary.withOpacity(0.7),
+                                      colors.secondary,
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    stops: [0.02, 1],
+                                  ),
                                 ),
                                 height: 40,
-                                child: Center(child: Text("Add Amount",style: TextStyle(color: colors.whiteTemp,fontSize: 15),)),
+                                child: const Center(child: Text("Add Amount",style: TextStyle(color: colors.whiteTemp,fontSize: 14),)),
                               ),
                             ) :
                             Align(
                               alignment: Alignment.topRight,
                               child: InkWell(
                                 onTap: (){
-                                  if (amountController.text.isNotEmpty || bankDetailsController.text.isNotEmpty) {
+                                  if (amountController.text.isEmpty ) {
+
+                                    Fluttertoast.showToast(msg: "Please enter amount");
+
+
+                                  }else if( bankDetailsController.text.isEmpty){
+                                    Fluttertoast.showToast(msg: "Please enter bank details!");
+                                  }else if(double.parse(amountController.text)>double.parse(balance ?? '0.0')){
+                                    Fluttertoast.showToast(msg: "Amount should be less then wallet balance!");
+                                  }else {
                                     sendWithdrawRequest();
-                                    // walletHistroy();
-                                    // Get.to(AddAmount(walletBalance: walletHistorymodel?.wallet??'--',))?.then((value) => walletHistroy() );
-                                  }else{
-                                    Fluttertoast.showToast(msg: "Please enter amount or bank details!");
                                   }
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: colors.secondary,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        colors.primary.withOpacity(0.7),
+                                        colors.secondary,
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: [0.02, 1],
+                                    ),
                                   ),
                                   height: 40,
                                   width: MediaQuery.of(context).size.width/2.5,
@@ -319,9 +381,16 @@ class _WalletScrState extends State<WalletScr> {
                                     height: 50,
                                     width: 150,
                                     decoration: BoxDecoration(
-                                      color: isSelected2
-                                          ? colors.secondary
-                                          : colors.whiteTemp,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          isSelected2 ?  colors.primary.withOpacity(0.7): colors.whiteTemp,
+                                          isSelected2 ? colors.secondary : colors.whiteTemp,
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        stops: [0.02, 1],
+                                      ),
+
                                       // border: Border.all(color: AppColors.AppbtnColor),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -345,7 +414,17 @@ class _WalletScrState extends State<WalletScr> {
                                         color: !isSelected2
                                             ? colors.secondary
                                             : colors.whiteTemp,
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            !isSelected2 ?  colors.primary.withOpacity(0.7): colors.whiteTemp,
+                                            !isSelected2 ? colors.secondary : colors.whiteTemp,
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          stops: [0.02, 1],
+                                        ),
                                         borderRadius: BorderRadius.circular(10)),
+
                                     child: Center(child:  Text("Withdrawal History",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: !isSelected2 ? colors.whiteTemp : colors.blackTemp),))),

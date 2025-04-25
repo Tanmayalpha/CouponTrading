@@ -97,6 +97,7 @@ class _TradingScreenState extends State<TradingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('${candles.length}_________SDFdfs');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -212,7 +213,7 @@ class _TradingScreenState extends State<TradingScreen> {
                     ? const Center(child: CircularProgressIndicator(),)
                     :  InteractiveChart(
                   /** Only [candles] is required */
-                  candles: candles,
+                  candles: candles.length <3 ? [CandleData(open: 0.0,close: 0.0,timestamp: 0,volume: 0,high: 0,low: 0),CandleData(open: 0.0,close: 0.0,timestamp: 0,volume: 0,high: 0,low: 0),CandleData(open: 0.0,close: 0.0,timestamp: 0,volume: 0,high: 0,low: 0)] : candles,
 
                   /** Uncomment the following for examples on optional parameters */
 
@@ -954,12 +955,15 @@ class _TradingScreenState extends State<TradingScreen> {
 
       (result['data'] as List).forEach((element) {
 
+        print('${element}__________Fsdf');
+
         int timeStamp = element['time'];
         double open = double.parse(element['open']);
         double high = double.parse(element['high']);
         double low = double.parse(element['low']);
         double close = double.parse(element['close']);
         int volume = double.parse(element['vol']).toInt();
+
 
         _rawData.add([timeStamp,open,high,low,close,volume]);
       });

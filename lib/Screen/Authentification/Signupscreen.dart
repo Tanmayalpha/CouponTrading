@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../Api/api_services.dart';
 import '../../Color/Color.dart';
 import '../../Custom Widget/AppBtn.dart';
+import '../../Custom Widget/gradient_button.dart';
 import 'LoginScreen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -65,11 +66,12 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 0.75),
-                      child: Container(
-                          height: MediaQuery.of(context).size.height / 5,
+                      padding: const EdgeInsets.only(top: 40),
+                      child: SizedBox(
+                          height: 130,
+                          width: 100,
                           child: Image.asset(
-                            "assets/images/splashlogo.png",
+                            "assets/images/klinTradeLogo.png",
                             scale: 6.2,
                           )),
                     ),
@@ -408,7 +410,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   Card(
@@ -443,15 +445,15 @@ class _SignupScreenState extends State<SignupScreen> {
                                             }
                                           },
                                           // maxLength: 10,
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             border: InputBorder.none,
                                             counterText: "",
-                                            contentPadding: const EdgeInsets.only(
+                                            contentPadding: EdgeInsets.only(
                                                 left: 15, top: 15),
                                             hintText: "Enter email Id",
                                             hintStyle:
                                             TextStyle(color: colors.secondary),
-                                            prefixIcon: const Icon(
+                                            prefixIcon: Icon(
                                               Icons.email,
                                               color: colors.secondary,
                                               size: 24,
@@ -461,7 +463,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   const SizedBox(
@@ -781,7 +783,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                               contentPadding: const EdgeInsets.only(
                                                   left: 15, top: 15),
                                               hintText: "Confirm Password",
-                                              hintStyle: TextStyle(
+                                              hintStyle: const TextStyle(
                                                   color: colors.secondary),
                                               prefixIcon: const Icon(
                                                 Icons.lock,
@@ -807,9 +809,9 @@ class _SignupScreenState extends State<SignupScreen> {
                                   const SizedBox(
                                     height: 5,
                                   ),
-                                  Row(
+                                  const Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
                                         '  *I Accept ',
                                         style: TextStyle(fontSize: 10),
@@ -837,7 +839,23 @@ class _SignupScreenState extends State<SignupScreen> {
                                   const SizedBox(
                                     height: 30,
                                   ),
-                                  Btn(
+                                  AppButton(width: double.maxFinite,title: isLoading1? 'Please wait...': 'Sign Up',onTab: isLoading1 ? null : (){
+                                    setState(() {
+                                      isLoading1 = true;
+                                    });
+                                    if (_formKey.currentState!.validate()) {
+                                      signupapi();
+                                    } else {
+                                      setState(() {
+                                        isLoading1 = false;
+                                      });
+                                      Fluttertoast.showToast(
+                                          msg:
+                                          "Please Enter Correct Credentials!!");
+                                    }
+
+                                  },height: 50,),
+                              /*    Btn(
                                     height: 50,
                                     width: 320,
                                     title: isLoading1 == true
@@ -858,7 +876,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                             "Please Enter Correct Credentials!!");
                                       }
                                     },
-                                  ),
+                                  ),*/
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -877,7 +895,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                               onTap: () {
                                                 Navigator.pop(context);
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 "Login",
                                                 style: TextStyle(
                                                     color: colors.secondary,
@@ -887,7 +905,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     ],
                                   ),
 
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 100,
                                   ),
                                 ]),

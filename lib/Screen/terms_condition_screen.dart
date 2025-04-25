@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
@@ -36,26 +37,11 @@ class _TermsAndConditionViewState extends State<TermsAndConditionView> {
 
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: 80,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [
-                        colors.primary,
-                        colors.secondary,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.02, 1]),
-
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(1),
-                    //
-                    bottomRight: Radius.circular(1),
-                  ),
-                  //   color: (Theme.of(context).colorScheme.apcolor)
-                ),
+                height: 60,
+                decoration: context.customGradientBox(),
                 child: Center(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
 
                         InkWell(
@@ -63,7 +49,7 @@ class _TermsAndConditionViewState extends State<TermsAndConditionView> {
                             Navigator.pop(context);
                           },
                           child: const Padding(
-                            padding: EdgeInsets.only(right: 5),
+                            padding: EdgeInsets.only(left: 10),
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(
@@ -73,18 +59,30 @@ class _TermsAndConditionViewState extends State<TermsAndConditionView> {
                             ),
                           ),
                         ),
-                        SizedBox(width: MediaQuery.of(context).size.width/5.8,),
-                        Text(
+                        const Text(
                           'Terms & Conditions',
                           style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
                               color: colors.whiteTemp),
                         ),
+                        InkWell(
+                          onTap: () {
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.arrow_back_ios,
+                                color: Colors.transparent,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     )),
               ),
-              SizedBox(height: 30,),
 
 
 

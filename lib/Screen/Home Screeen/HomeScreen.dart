@@ -363,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       subtitle:  Row(children: [
         Text(
-          'Available Stock -${coupan.stock}',
+          'Available Stock: ${coupan.stock}',
           style: const TextStyle(color: Colors.grey, fontSize: 12),
         ),
         const SizedBox(width: 10,),
@@ -486,13 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             height: 120,
-            decoration:  const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [colors.secondary, colors.secondary],
-              ),
-            ),
+            decoration:  context.customGradientBox(),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               // main

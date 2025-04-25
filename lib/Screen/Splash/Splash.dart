@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: colors.primary,
+        backgroundColor: colors.whiteTemp,
         body: Center(
 
           child: Container(
@@ -65,8 +65,8 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
 
 
-                  Text('Welcome',style: TextStyle(fontSize: 30,fontWeight:FontWeight.bold,color: colors.whiteTemp),),
-                  Image.asset("assets/images/splashlogo.png",height: 200,),
+                  //Text('Welcome',style: TextStyle(fontSize: 30,fontWeight:FontWeight.bold,color: colors.primary),),
+                  Image.asset("assets/images/klinTradeLogo.png",height: 200,),
                 ],
               ))
           // Container(

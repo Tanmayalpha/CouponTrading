@@ -107,7 +107,7 @@ class _Bottom_BarState extends State<Bottom_Bar> {
 
 
 
-                  icon: Icon(Icons.monetization_on_sharp)),
+                  icon: Icon(Icons.currency_rupee)),
               BottomNavigationBarItem(
                   label:' Profile',
 

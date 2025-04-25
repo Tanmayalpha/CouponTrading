@@ -213,7 +213,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 40,),
-                    AppButton(width: double.maxFinite,title: isLoading? 'Please wait...': 'Send OTP',onTab: isLoading ? null : (){
+                    AppButton(width: double.maxFinite,title: isLoading? 'Please wait...': 'Reset Password',onTab: isLoading ? null : (){
                       if(formkey.currentState!.validate()){
                         resetPassword() ;
 

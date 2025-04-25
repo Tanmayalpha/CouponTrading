@@ -93,14 +93,14 @@ class _EditeProfileState extends State<EditeProfile> {
                 onPressed: () {
                   _getFromCamera();
                 },
-                child: const Text('Camera'),
+                child: const Text('Camera',style: TextStyle(color: colors.whiteTemp)),
               ),
               const SizedBox(
                 width: 30,
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: colors.secondary),
-                child: const Text("Gallery"),
+                child: const Text("Gallery",style: TextStyle(color: colors.whiteTemp),),
                 onPressed: () {
                   _getFromGallery();
                 },

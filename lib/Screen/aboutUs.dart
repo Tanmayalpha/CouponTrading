@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:coupon_trading/utils/extentions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart';
@@ -19,7 +21,7 @@ class _AboutUsViewState extends State<AboutUsView> {
   var aboutuss;
   @override
   void initState() {
-    aboutusapi();
+    aboutUsApi();
     // TODO: implement initState
     super.initState();
   }
@@ -34,26 +36,11 @@ class _AboutUsViewState extends State<AboutUsView> {
 
             Container(
               width: MediaQuery.of(context).size.width,
-              height: 80,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [
-                      colors.primary,
-                      colors.secondary,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.02, 1]),
-
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(1),
-                  //
-                  bottomRight: Radius.circular(1),
-                ),
-                //   color: (Theme.of(context).colorScheme.apcolor)
-              ),
+              height: 60,
+              decoration: context.customGradientBox(),
               child: Center(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
 
                       InkWell(
@@ -61,7 +48,7 @@ class _AboutUsViewState extends State<AboutUsView> {
                           Navigator.pop(context);
                         },
                         child: const Padding(
-                          padding: EdgeInsets.only(right: 5),
+                          padding: EdgeInsets.only(left: 10),
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Icon(
@@ -71,20 +58,30 @@ class _AboutUsViewState extends State<AboutUsView> {
                           ),
                         ),
                       ),
-                      SizedBox(width: MediaQuery.of(context).size.width/3.5,),
-                      Text(
+                      const Text(
                         'About Us',
                         style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                             color: colors.whiteTemp),
                       ),
+                      InkWell(
+                        onTap: () {
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.transparent,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   )),
             ),
-            SizedBox(height: 30,),
-
-
 
             aboutuss!=null ? SingleChildScrollView(
               child: Html(data: "${aboutuss}"),
@@ -96,15 +93,12 @@ class _AboutUsViewState extends State<AboutUsView> {
     );
   }
 
-  Future<void> aboutusapi() async {
-
-
-
+  Future<void> aboutUsApi() async {
 
     var headers = {
-      'Cookie': 'CFID=12052; CFTOKEN=86ff74390ccf66f3-D15C5595-F060-B09C-BDA48E95B3243BA4'
+      'Cookie': 'ci_session=b3011b2dcfdddf06099d16ef986a0245c21c9ed9'
     };
-    var request = http.Request('GET', Uri.parse(ApiService.aboutus));
+    var request = http.Request('POST', Uri.parse('${ApiService.getSettings}'));
 
     request.headers.addAll(headers);
 
@@ -112,11 +106,14 @@ class _AboutUsViewState extends State<AboutUsView> {
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
+      //   print('___________${result}__________');
+      var finalResult = jsonDecode(result);
+      print('___________${finalResult['data']['terms_conditions'][0]}__________');
+      aboutuss = finalResult['data']['about_us'][0];
 
-     // var finalresult = Aboutusmodel.fromJson(json.decode(result));
-     setState(() {
-       // aboutuss=finalresult.data;
-     });
+      setState(() {
+
+      });
     }
     else {
       print(response.reasonPhrase);
