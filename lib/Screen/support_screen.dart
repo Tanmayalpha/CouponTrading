@@ -114,7 +114,7 @@ class _SupportScreenState extends State<SupportScreen> {
                           title: const Text('Mobile',
                               style: TextStyle(color: colors.whiteTemp,fontWeight: FontWeight.bold)),
                           trailing: Text(mobile ?? '',
-                              style: TextStyle(color: colors.whiteTemp,fontWeight: FontWeight.bold)),
+                              style: const TextStyle(color: colors.whiteTemp,fontWeight: FontWeight.bold)),
                           tileColor: colors.secondary.withOpacity(0.9)),
                       const SizedBox(
                         height: 10,
@@ -125,7 +125,7 @@ class _SupportScreenState extends State<SupportScreen> {
                             launchWhatsApp(phone: mobile ?? '', message: 'Hello, I need support. Could you please assist me?.');
                           },
                           leading: Image.asset('assets/images/WhatsApp_icon.png',height: 35,width: 35,),
-                          title: const Text('Mobile',
+                          title: const Text('WhatsApp',
                               style: TextStyle(color: colors.whiteTemp,fontWeight: FontWeight.bold)),
                           trailing: Text(mobile ?? '',
                               style: const TextStyle(color: colors.whiteTemp,fontWeight: FontWeight.bold)),
@@ -169,7 +169,9 @@ class _SupportScreenState extends State<SupportScreen> {
 
 
   void launchWhatsApp({required String phone, required String message}) async {
-    final Uri whatsappUrl = Uri.parse('https://wa.me/$phone?text=${Uri.encodeComponent(message)}');
+    //var iosUrl = "https://wa.me/$phone?text=${Uri.parse('Hi, I need some help')}";
+    final Uri whatsappUrl = Uri.parse('whatsapp://send?phone=$phone&text=$message');
+
     if (await canLaunchUrlString(whatsappUrl.toString())) {
       await launchUrlString(whatsappUrl.toString());
     } else {
