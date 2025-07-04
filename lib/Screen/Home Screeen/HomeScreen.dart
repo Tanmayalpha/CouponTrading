@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coupon_trading/Api/api_services.dart';
 import 'package:coupon_trading/Model/slider_data_response.dart';
@@ -11,7 +9,6 @@ import 'package:coupon_trading/Screen/support_screen.dart';
 import 'package:coupon_trading/Screen/trading_Scr.dart';
 import 'package:coupon_trading/constant/constant.dart';
 import 'package:coupon_trading/utils/extentions.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,18 +16,14 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../Color/Color.dart';
-import '../../Custom Widget/AppBtn.dart';
-
 import '../../Model/getCoupanModel.dart';
-import '../profile/EditeProfile.dart';
-
+import '../payment_history.dart';
+import '../qr_screen.dart';
 import '../wallet.dart';
 import '../aboutUs.dart';
 import '../privacy_policy_screen.dart';
 import '../terms_condition_screen.dart';
-import 'bottombar.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? userId;
@@ -52,19 +45,17 @@ class _HomeScreenState extends State<HomeScreen> {
   var lastname;
   var gmaill;
   int currentindex = 0;
-  final  _controller = CarouselController();
+  final _controller = CarouselController();
 
   late Timer timer;
 
   List<GetCooupann> coupanList = [];
   String? name, profile, email;
-  List<SliderDataList>  sliderImageList= [];
-
-
+  List<SliderDataList> sliderImageList = [];
 
   _carouselSlider1() {
     return CarouselSlider(
-      carouselController: _controller,
+        carouselController: _controller,
         options: CarouselOptions(
             onPageChanged: (index, result) {
               setState(() {
@@ -82,13 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
             scrollDirection: Axis.horizontal,
             height: 180.0),
         items: sliderImageList.map((e) {
-          return Image.network(e.image ?? '',fit: BoxFit.cover,);
+          return Image.network(
+            e.image ?? '',
+            fit: BoxFit.cover,
+          );
         }).toList());
   }
 
   final socket = WebSocketManager();
-
-
 
   @override
   void initState() {
@@ -101,8 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
       getCoupanApi();
     });*/
     // timer = Timer.periodic(Duration(seconds: 1), (Timer t) =>  getCoupanApi());
-
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -110,15 +102,14 @@ class _HomeScreenState extends State<HomeScreen> {
     timer.cancel();
   }
 
-
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   Future<Null> _refresh() {
     return callApi();
   }
 
-  Future<Null> callApi() async {
-  }
+  Future<Null> callApi() async {}
 
   setFilterDataId(String id) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -137,7 +128,6 @@ class _HomeScreenState extends State<HomeScreen> {
         body: SafeArea(
           child: Column(
             children: [
-
               Container(
                 height: 60,
                 decoration: context.customGradientBox(),
@@ -171,7 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const Spacer(),
                     Padding(
-                      padding: const EdgeInsets.only( top: 10,bottom: 10, right: 15),
+                      padding:
+                          const EdgeInsets.only(top: 10, bottom: 10, right: 15),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(
@@ -198,7 +189,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 5,),
+              const SizedBox(
+                height: 5,
+              ),
               _carouselSlider1(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -208,13 +201,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       width: 7.0,
                       height: 7.0,
-                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 2.0),
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: (Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : colors.primary)
-                              .withOpacity(currentindex == entry.key ? 0.9 : 0.4)),
+                          color:
+                              (Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white
+                                      : colors.primary)
+                                  .withOpacity(
+                                      currentindex == entry.key ? 0.9 : 0.4)),
                     ),
                   );
                 }).toList(),
@@ -228,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: const BouncingScrollPhysics(),
                   itemCount: coupanList.length,
                   itemBuilder: (context, index) {
-                    return couponTile(coupanList[index]) ;
+                    return couponTile(coupanList[index]);
                     /*InkWell(
                       onTap: () {
                         Navigator.push(
@@ -324,11 +320,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-  Widget couponTile(GetCooupann coupan){
+  Widget couponTile(GetCooupann coupan) {
     return ListTile(
       onTap: () {
-
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -361,14 +355,17 @@ class _HomeScreenState extends State<HomeScreen> {
           // ),
         ],
       ),
-      subtitle:  Row(children: [
-        Text(
-          'Available Stock: ${coupan.stock}',
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-        const SizedBox(width: 10,),
-
-      ],),
+      subtitle: Row(
+        children: [
+          Text(
+            'Available Stock: ${coupan.stock}',
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+        ],
+      ),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -376,14 +373,15 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             coupan.price ?? '',
-            style: const TextStyle(/*fontWeight: FontWeight.bold,*/fontSize: 14),
+            style:
+                const TextStyle(/*fontWeight: FontWeight.bold,*/ fontSize: 14),
           ),
           const SizedBox(width: 4),
           Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: getChangeColor('${coupan.profitLossPercent}%').withOpacity(0.1),
+              color: getChangeColor('${coupan.profitLossPercent}%')
+                  .withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -395,12 +393,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           )
-
         ],
       ),
     );
-
-
   }
 
   Color getChangeColor(String change) {
@@ -411,9 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return !change.contains('-') ? '+${change}' : change;
   }
 
-
-
-  getPref()async{
+  getPref() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     name = pref.getString(Constant.NAME);
     profile = pref.getString(Constant.PROFILE);
@@ -421,7 +414,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getCoupanApi() async {
-
     var headers = {
       'Cookie': 'ci_session=eb53ae9aeac2ce4fd80c41100b10abd26e4f8422'
     };
@@ -445,24 +437,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future <void> socketSetup() async{
-
+  Future<void> socketSetup() async {
     socket.connect();
 
-    socket.send(jsonEncode({"type":"coupon-list"}));
-
+    socket.send(jsonEncode({"type": "coupon-list"}));
 
     socket.stream.listen((event) {
-
-     if(event['type'] == 'coupon-list'){
-
-       coupanList = GetCoupanModel.fromJson(event).data ?? [] ;
-       setState(() {});
-     }
-
+      if (event['type'] == 'coupon-list') {
+        coupanList = GetCoupanModel.fromJson(event).data ?? [];
+        setState(() {});
+      }
     });
-
-
   }
 
   void showToast() {
@@ -475,9 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
         textColor: Colors.black);
   }
 
-
-
- Widget getDrawer() {
+  Widget getDrawer() {
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width / 1.3,
@@ -486,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             height: 120,
-            decoration:  context.customGradientBox(),
+            decoration: context.customGradientBox(),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               // main
@@ -506,7 +489,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
-                  children:  [
+                  children: [
                     Text(
                       // "${firstname.toString()} ${middlename.toString()} ${lastname.toString()}",
                       name ?? '',
@@ -599,6 +582,44 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           ListTile(
+            leading: const Padding(
+              padding: EdgeInsets.only(left: 5.0),
+              child: Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 30,
+                color: colors.black54,
+              ),
+            ),
+            title: Text(
+              'Payment History',
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PayemntHistory()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Padding(
+              padding: EdgeInsets.only(left: 5.0),
+              child: Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 30,
+                color: colors.black54,
+              ),
+            ),
+            title: Text(
+              'QR Code',
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QrScreen()),
+              );
+            },
+          ),
+          ListTile(
             leading: Image.asset(
               "assets/images/Term & Conditions.png",
               color: colors.black54,
@@ -646,7 +667,8 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PrivacyPolicyView()),
+                MaterialPageRoute(
+                    builder: (context) => const PrivacyPolicyView()),
               );
             },
           ),
@@ -691,11 +713,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: ElevatedButton.styleFrom(
                               backgroundColor: colors.secondary),
                           child: const Text("YES"),
-                          onPressed: () async{
-                            SharedPreferences pref = await SharedPreferences.getInstance();
+                          onPressed: () async {
+                            SharedPreferences pref =
+                                await SharedPreferences.getInstance();
                             pref.clear();
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
-
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginScreen(),
+                                ));
                           },
                         ),
                         ElevatedButton(
@@ -716,32 +742,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
- Future<void> sliderData() async{
+  Future<void> sliderData() async {
     var headers = {
       'Cookie': 'ci_session=ea20ce6e5b4f3265813ff387bf04c70abb75c16b'
     };
-    var request = http.Request('GET', Uri.parse('${ApiService.getSliderImages}'));
+    var request =
+        http.Request('GET', Uri.parse('${ApiService.getSliderImages}'));
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-       var result = await response.stream.bytesToString();
-       var finalResult = jsonDecode(result);
-       if(finalResult['error']){
-
-       }else {
-         sliderImageList = SliderData.fromJson(finalResult).data ?? [] ;
-       }
-    }
-    else {
+      var result = await response.stream.bytesToString();
+      var finalResult = jsonDecode(result);
+      if (finalResult['error']) {
+      } else {
+        sliderImageList = SliderData.fromJson(finalResult).data ?? [];
+      }
+    } else {
       print(response.reasonPhrase);
     }
-
   }
 }
-
-
