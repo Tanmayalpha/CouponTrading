@@ -27,6 +27,7 @@ class _PayemntHistoryState extends State<PayemntHistory> {
   void initState() {
     // TODO: implement initState
     my = getPaymentList();
+    getUserPref();
     super.initState();
   }
 
@@ -39,26 +40,35 @@ class _PayemntHistoryState extends State<PayemntHistory> {
   PaymentListModel? paymentListModel;
   String? uid;
   Future<void> getPaymentList() async {
-    var request =
-        http.MultipartRequest('POST', Uri.parse(ApiService.paymentlist));
-    request.fields.addAll({'user_id': uid ?? '34'});
-    print("Anjali Share______${request.fields}");
+    var headers = {
+      'Cookie': 'ci_session=3ce649d7fc8fd1ca0f6d0e68b65f31491df422b0',
+    };
+    var uri = Uri.parse('https://klintrade.com/app/v1/api/get_deposit_history')
+        .replace(queryParameters: {'user_id': uid ?? ''});
+
+    var request = http.Request('GET', uri);
+    request.headers.addAll(headers);
+
     http.StreamedResponse response = await request.send();
-    var json = jsonDecode(await response.stream.bytesToString());
+
     if (response.statusCode == 200) {
+      var jsonString = await response.stream.bytesToString();
+      var json = jsonDecode(jsonString);
       paymentListModel = PaymentListModel.fromJson(json);
       if (paymentListModel != null &&
           paymentListModel!.data != null &&
           paymentListModel!.data!.isNotEmpty) {
+        totalAmount = 0;
         for (int i = 0; i < paymentListModel!.data!.length; i++) {
-          totalAmount = totalAmount +
-              double.parse(paymentListModel!.data![i].amount.toString())
-                  .toInt();
+          totalAmount +=
+              double.tryParse(paymentListModel!.data![i].amount.toString())
+                      ?.toInt() ??
+                  0;
         }
       }
       setState(() {});
     } else {
-      print(response.reasonPhrase);
+      print('Error: ${response.reasonPhrase}');
     }
   }
 
@@ -69,7 +79,7 @@ class _PayemntHistoryState extends State<PayemntHistory> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Payment History",
+          "Deposit History",
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -91,7 +101,7 @@ class _PayemntHistoryState extends State<PayemntHistory> {
                 ? Center(child: CircularProgressIndicator())
                 : paymentListModel == null ||
                         paymentListModel!.data?.isEmpty == true
-                    ? NoDataFound(slug: 'Shares')
+                    ? NoDataFound(slug: 'Payment History')
                     : ListView.builder(
                         itemCount: paymentListModel!.data?.length,
                         itemBuilder: (context, index) => Container(
@@ -146,7 +156,7 @@ class _PayemntHistoryState extends State<PayemntHistory> {
                                   ),
                                   const SizedBox(width: 10),
                                   Container(
-                                    height: 30,
+                                    height: 40,
                                     width: 120,
                                     child: ElevatedButton(
                                       onPressed: () {

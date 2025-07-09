@@ -55,10 +55,10 @@ class _TradingScreenState extends State<TradingScreen> {
   bool isChinese = false;
   // List<DepthEntity>? _bids, _asks;
 
- // ChartStyle chartStyle = ChartStyle();
- //  ChartColors chartColors = ChartColors();
+  // ChartStyle chartStyle = ChartStyle();
+  //  ChartColors chartColors = ChartColors();
 
-  String? uid,name,email,mobile;
+  String? uid, name, email, mobile;
   late Razorpay _razorpay;
 
   // KLineEntity? lastData ;
@@ -66,18 +66,17 @@ class _TradingScreenState extends State<TradingScreen> {
   final List<CandleData> _data = [];
   bool _darkMode = true;
   bool _showAverage = false;
-  String amount ='0.0' ;
-  String open ='0.0' ;
-  String high ='0.0' ;
-  String low ='0.0' ;
-  String current ='0.0' ;
+  String amount = '0.0';
+  String open = '0.0';
+  String high = '0.0';
+  String low = '0.0';
+  String current = '0.0';
 
   List<CandleData> candles = [];
 
-  bool isLoading = true ;
+  bool isLoading = true;
 
   final socket = WebSocketManager();
-
 
   @override
   void initState() {
@@ -89,6 +88,7 @@ class _TradingScreenState extends State<TradingScreen> {
     socketSetup();
     getUserPref();
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -104,90 +104,90 @@ class _TradingScreenState extends State<TradingScreen> {
         brightness: _darkMode ? Brightness.dark : Brightness.light,
       ),
       home: SafeArea(
-        child: Scaffold(
-          body: SingleChildScrollView(
-            child: Column(children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: 60,
-                decoration:  BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [
-                        colors.primary.withOpacity(0.5),
-                        colors.secondary,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.02, 1]),
+          child: Scaffold(
+        body: SingleChildScrollView(
+          child: Column(children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 60,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [
+                      colors.primary.withOpacity(0.5),
+                      colors.secondary,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.02, 1]),
 
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(1),
-                    //
-                    bottomRight: Radius.circular(1),
-                  ),
-                  //   color: (Theme.of(context).colorScheme.apcolor)
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(1),
+                  //
+                  bottomRight: Radius.circular(1),
                 ),
-                child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.only(right: 5),
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.arrow_back_ios,
-                                color: colors.whiteTemp,
+                //   color: (Theme.of(context).colorScheme.apcolor)
+              ),
+              child: Center(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(right: 5),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          color: colors.whiteTemp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    widget.name.toString(),
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: colors.whiteTemp),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(left: 15, top: 20, right: 15),
+                      child: Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WalletScr(),
+                                  ));
+                            },
+                            child: Container(
+                              child: Column(
+                                children: const [
+                                  Icon(
+                                    Icons.account_balance_wallet_outlined,
+                                    color: colors.whiteTemp,
+                                  ),
+                                  Text(
+                                    'Wallet',
+                                    style: TextStyle(
+                                        fontSize: 10, color: colors.whiteTemp),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ),
-                        Text(
-                          widget.name.toString(),
-                          style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: colors.whiteTemp),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(left: 15, top: 20, right: 15),
-                            child: Row(children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => WalletScr(),
-                                      ));
-                                },
-                                child: Container(
-                                  child: Column(
-                                    children: const [
-                                      Icon(
-                                        Icons.account_balance_wallet_outlined,
-                                        color: colors.whiteTemp,
-                                      ),
-                                      Text(
-                                        'Wallet',
-                                        style:
-                                        TextStyle(fontSize: 10, color: colors.whiteTemp),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                            ],)
-                        )
-                      ],
-                    )),
-              ),
-
-              Row(children: [
+                        ],
+                      ))
+                ],
+              )),
+            ),
+            Row(
+              children: [
                 IconButton(
                   icon: Icon(_darkMode ? Icons.dark_mode : Icons.light_mode),
                   onPressed: () => setState(() => _darkMode = !_darkMode),
@@ -199,65 +199,91 @@ class _TradingScreenState extends State<TradingScreen> {
                   onPressed: () {
                     setState(() => _showAverage = !_showAverage);
                     if (_showAverage) {
-                       _computeTrendLines();
+                      _computeTrendLines();
                     } else {
-                       _removeTrendLines();
+                      _removeTrendLines();
                     }
                   },
                 ),
-              ],),
+              ],
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : InteractiveChart(
+                      /** Only [candles] is required */
+                      candles: candles.length < 3
+                          ? [
+                              CandleData(
+                                  open: 0.0,
+                                  close: 0.0,
+                                  timestamp: 0,
+                                  volume: 0,
+                                  high: 0,
+                                  low: 0),
+                              CandleData(
+                                  open: 0.0,
+                                  close: 0.0,
+                                  timestamp: 0,
+                                  volume: 0,
+                                  high: 0,
+                                  low: 0),
+                              CandleData(
+                                  open: 0.0,
+                                  close: 0.0,
+                                  timestamp: 0,
+                                  volume: 0,
+                                  high: 0,
+                                  low: 0)
+                            ]
+                          : candles,
 
-              SizedBox(
-                height: MediaQuery.of(context).size.height*0.6,
-                child: isLoading
-                    ? const Center(child: CircularProgressIndicator(),)
-                    :  InteractiveChart(
-                  /** Only [candles] is required */
-                  candles: candles.length <3 ? [CandleData(open: 0.0,close: 0.0,timestamp: 0,volume: 0,high: 0,low: 0),CandleData(open: 0.0,close: 0.0,timestamp: 0,volume: 0,high: 0,low: 0),CandleData(open: 0.0,close: 0.0,timestamp: 0,volume: 0,high: 0,low: 0)] : candles,
+                      /** Uncomment the following for examples on optional parameters */
 
-                  /** Uncomment the following for examples on optional parameters */
-
-                  /** Example styling */
-                  // style: ChartStyle(
-                  //   priceGainColor: Colors.teal[200]!,
-                  //   priceLossColor: Colors.blueGrey,
-                  //   volumeColor: Colors.teal.withOpacity(0.8),
-                  //   trendLineStyles: [
-                  //     Paint()
-                  //       ..strokeWidth = 2.0
-                  //       ..strokeCap = StrokeCap.round
-                  //       ..color = Colors.deepOrange,
-                  //     Paint()
-                  //       ..strokeWidth = 4.0
-                  //       ..strokeCap = StrokeCap.round
-                  //       ..color = Colors.orange,
-                  //   ],
-                  //   priceGridLineColor: Colors.blue[200]!,
-                  //   priceLabelStyle: TextStyle(color: Colors.blue[200]),
-                  //   timeLabelStyle: TextStyle(color: Colors.blue[200]),
-                  //   selectionHighlightColor: Colors.red.withOpacity(0.2),
-                  //   overlayBackgroundColor: Colors.red[900]!.withOpacity(0.6),
-                  //   overlayTextStyle: TextStyle(color: Colors.red[100]),
-                  //   timeLabelHeight: 32,
-                  //   volumeHeightFactor: 0.2, // volume area is 20% of total height
-                  // ),
-                  /** Customize axis labels */
-                  // timeLabel: (timestamp, visibleDataCount) => "📅",
-                  // priceLabel: (price) => "${price.round()} 💎",
-                  /** Customize overlay (tap and hold to see it)
+                      /** Example styling */
+                      // style: ChartStyle(
+                      //   priceGainColor: Colors.teal[200]!,
+                      //   priceLossColor: Colors.blueGrey,
+                      //   volumeColor: Colors.teal.withOpacity(0.8),
+                      //   trendLineStyles: [
+                      //     Paint()
+                      //       ..strokeWidth = 2.0
+                      //       ..strokeCap = StrokeCap.round
+                      //       ..color = Colors.deepOrange,
+                      //     Paint()
+                      //       ..strokeWidth = 4.0
+                      //       ..strokeCap = StrokeCap.round
+                      //       ..color = Colors.orange,
+                      //   ],
+                      //   priceGridLineColor: Colors.blue[200]!,
+                      //   priceLabelStyle: TextStyle(color: Colors.blue[200]),
+                      //   timeLabelStyle: TextStyle(color: Colors.blue[200]),
+                      //   selectionHighlightColor: Colors.red.withOpacity(0.2),
+                      //   overlayBackgroundColor: Colors.red[900]!.withOpacity(0.6),
+                      //   overlayTextStyle: TextStyle(color: Colors.red[100]),
+                      //   timeLabelHeight: 32,
+                      //   volumeHeightFactor: 0.2, // volume area is 20% of total height
+                      // ),
+                      /** Customize axis labels */
+                      // timeLabel: (timestamp, visibleDataCount) => "📅",
+                      // priceLabel: (price) => "${price.round()} 💎",
+                      /** Customize overlay (tap and hold to see it)
                    ** Or return an empty object to disable overlay info. */
-                  // overlayInfo: (candle) => {
-                  //   "💎": "🤚    ",
-                  //   "Hi": "${candle.high?.toStringAsFixed(2)}",
-                  //   "Lo": "${candle.low?.toStringAsFixed(2)}",
-                  // },
-                  /** Callbacks */
-                  // onTap: (candle) => print("user tapped on $candle"),
-                  // onCandleResize: (width) => print("each candle is $width wide"),
-                ),
-              ),
+                      // overlayInfo: (candle) => {
+                      //   "💎": "🤚    ",
+                      //   "Hi": "${candle.high?.toStringAsFixed(2)}",
+                      //   "Lo": "${candle.low?.toStringAsFixed(2)}",
+                      // },
+                      /** Callbacks */
+                      // onTap: (candle) => print("user tapped on $candle"),
+                      // onCandleResize: (width) => print("each candle is $width wide"),
+                    ),
+            ),
 
-              /*Column(
+            /*Column(
                 children: <Widget>[
                   Stack(children: <Widget>[
                     SizedBox(
@@ -281,28 +307,50 @@ class _TradingScreenState extends State<TradingScreen> {
 
                   ]),
                   buildButtons(),
-                  *//*Container(
+                  */ /*Container(
               height: 230,
               width: double.infinity,
               child: DepthChart(_bids!, _asks!,chartColors),
-            )*//*
+            )*/ /*
 
                 ],
               ),*/
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-
-
-                    Card(
-                      child: Padding(
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(children: [
+                        const Text(
+                          'High',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: colors.secondary),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          high == '' ? widget.amount.toString() : high, //amount
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: _darkMode
+                                  ? colors.whiteTemp
+                                  : colors.blackTemp),
+                        ),
+                      ]),
+                    ),
+                  ),
+                  Card(
+                    child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: Column(children: [
-
                           const Text(
-                            'High',
+                            'Low',
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -312,42 +360,23 @@ class _TradingScreenState extends State<TradingScreen> {
                             height: 5,
                           ),
                           Text(
-                            high == '' ?  widget.amount.toString() : high , //amount
-                            style:  TextStyle(fontSize: 12, color: _darkMode ? colors.whiteTemp : colors.blackTemp),
+                            candles.isEmpty
+                                ? '--'
+                                : low, //candles.last.low.toString() ,
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: _darkMode
+                                    ? colors.whiteTemp
+                                    : colors.blackTemp),
                           ),
-                        ]),
-                      ),
-                    ),
-                    Card(
-                      child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(children: [
-
-                            const Text(
-                              'Low',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.secondary),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                                candles.isEmpty ? '--':  low,  //candles.last.low.toString() ,
-                              style:  TextStyle(fontSize: 12, color: _darkMode ? colors.whiteTemp : colors.blackTemp),
-                            ),
-                          ])
-                      ),
-                    ),
-                    candles.isEmpty
-                        ? const SizedBox()
-                        : Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                            children: [
-
+                        ])),
+                  ),
+                  candles.isEmpty
+                      ? const SizedBox()
+                      : Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(children: [
                               const Text(
                                 'Current Prize',
                                 style: TextStyle(
@@ -358,68 +387,80 @@ class _TradingScreenState extends State<TradingScreen> {
                               const SizedBox(
                                 height: 5,
                               ),
-                              (candles.last?.open ?? 0.0) <= (double.parse(current ?? '0.0') )
+                              (candles.last?.open ?? 0.0) <=
+                                      (double.parse(current ?? '0.0'))
                                   ? Text(
-                                current == '' ?  widget.amount.toString() :  current,//amount
-                                style: const TextStyle(fontSize: 13, color: Colors.green,fontWeight: FontWeight.bold),
-                              ) : Text(
-                                current == '' ?  widget.amount.toString() : current ,
-                                style: const TextStyle(fontSize: 12, color: colors.red,fontWeight: FontWeight.bold),
-                              ),
+                                      current == ''
+                                          ? widget.amount.toString()
+                                          : current, //amount
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : Text(
+                                      current == ''
+                                          ? widget.amount.toString()
+                                          : current,
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: colors.red,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                             ]),
-                      ),
-                    ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child:  Column(
-                            children: [
-
-                              const Text(
-                                'Open',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: colors.secondary),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                candles.isEmpty ? '--': open,//candles.last.open.toString(),
-                                style: TextStyle(fontSize: 12, color: _darkMode ? colors.whiteTemp : colors.blackTemp),
-                              ),
-                            ]),
-                      ),
-                    ),
-
-
-
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Center(
-                    child: Btn(
-
-                      title: "Buy",
-                      height: 40,
-                      width: 200,
-                      onPress: () {
-                        setState(() {
-                          typee = "Buy";
-                        });
-
-                        buySellDialog(typee);
-                      },
+                          ),
+                        ),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(children: [
+                        const Text(
+                          'Open',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: colors.secondary),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          candles.isEmpty
+                              ? '--'
+                              : open, //candles.last.open.toString(),
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: _darkMode
+                                  ? colors.whiteTemp
+                                  : colors.blackTemp),
+                        ),
+                      ]),
                     ),
                   ),
-                  /*Center(
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Center(
+                  child: Btn(
+                    title: "Buy",
+                    height: 40,
+                    width: 200,
+                    onPress: () {
+                      setState(() {
+                        typee = "Buy";
+                      });
+
+                      buySellDialog(typee);
+                    },
+                  ),
+                ),
+                /*Center(
               child: Btn(
                color: colors.red,
                 title: "Sell",
@@ -433,20 +474,22 @@ class _TradingScreenState extends State<TradingScreen> {
                 },
               ),
             ),*/
-                  /* button1(() {
+                /* button1(() {
                 setState(() {
                   typee = "Sell";
                 });
                 popshow2(typee);
               },),*/
-
-                ],),
-              const SizedBox(height: 50,)
-            ]),
-          ),
-        )),);
+              ],
+            ),
+            const SizedBox(
+              height: 50,
+            )
+          ]),
+        ),
+      )),
+    );
   }
-
 
   _computeTrendLines() {
     final ma7 = CandleData.computeMA(candles, 7);
@@ -464,21 +507,21 @@ class _TradingScreenState extends State<TradingScreen> {
     }
   }
 
-  getUserPref() async{
+  getUserPref() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    uid =  prefs.getString('userId');
+    uid = prefs.getString('userId');
     email = prefs.getString(Constant.EMAIL);
     name = prefs.getString(Constant.NAME);
-    mobile =prefs.getString(Constant.PHONE);
+    mobile = prefs.getString(Constant.PHONE);
   }
 
-  Future<void> buySellCoupan(typeeee, {String ? paymentid, String? paymentType }) async {
+  Future<void> buySellCoupan(typeeee,
+      {String? paymentid, String? paymentType}) async {
     var headers = {
       'Cookie': 'ci_session=ef2aff848979b6494f9365917121186a328cb6fa'
     };
-    var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('${ApiService.buySellCoupon}'));
+    var request =
+        http.MultipartRequest('POST', Uri.parse('${ApiService.buySellCoupon}'));
     request.fields.addAll({
       'user_id': uid ?? '30',
       'quantity': quantitycontroller.text,
@@ -494,7 +537,7 @@ class _TradingScreenState extends State<TradingScreen> {
 
     http.StreamedResponse response = await request.send();
 
-    print("--------- print() ----  ${request.fields}" );
+    print("--------- print() ----  ${request.fields}");
 
     if (response.statusCode == 200) {
       var result = await response.stream.bytesToString();
@@ -539,8 +582,8 @@ class _TradingScreenState extends State<TradingScreen> {
         child: const Center(
           child: Text(
             "Sell",
-            style:  TextStyle(
-              color:colors.whiteTemp,
+            style: TextStyle(
+              color: colors.whiteTemp,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -548,9 +591,6 @@ class _TradingScreenState extends State<TradingScreen> {
       ),
     );
   }
-
-
-
 
   void showToast(String msg) {
     Fluttertoast.showToast(
@@ -561,6 +601,7 @@ class _TradingScreenState extends State<TradingScreen> {
         backgroundColor: Colors.white,
         textColor: Colors.black);
   }
+
   var uuid = Uuid();
 
   void paymentMethodPopup(String type) {
@@ -605,44 +646,44 @@ class _TradingScreenState extends State<TradingScreen> {
                 width: 150,
                 height: 40,
                 title: 'Wallet',
-                onTab: (){
+                onTab: () {
                   Navigator.pop(context);
                   final paymentId = uuid.v4();
-                  buySellCoupan(typee, paymentid: paymentId,paymentType: 'wallet');
+                  buySellCoupan(typee,
+                      paymentid: paymentId, paymentType: 'wallet');
                 },
               ),
               const SizedBox(
                 height: 10,
               ),
-              AppButton(
-                width: 150,
-                height: 40,
-                title: 'Other',
-                onTab: (){
-                  Navigator.pop(context);
-
-
-                  RazorPayHelper razorPay = RazorPayHelper(
-                      '120', context, (result) async {
-                    if (result != "error") {
-
-                      buySellCoupan(typee,paymentid: result);
-                      Fluttertoast.showToast(
-                          msg: "Successful",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.green,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
-
-                    } else {}
-                  },email: email, mobile: mobile,name: name);
-
-                  razorPay.init();
-                },
-              ),
-
+              // AppButton(
+              //   width: 150,
+              //   height: 40,
+              //   title: 'Other',
+              //   onTab: (){
+              //     Navigator.pop(context);
+              //
+              //
+              //     RazorPayHelper razorPay = RazorPayHelper(
+              //         '120', context, (result) async {
+              //       if (result != "error") {
+              //
+              //         buySellCoupan(typee,paymentid: result);
+              //         Fluttertoast.showToast(
+              //             msg: "Successful",
+              //             toastLength: Toast.LENGTH_SHORT,
+              //             gravity: ToastGravity.CENTER,
+              //             timeInSecForIosWeb: 1,
+              //             backgroundColor: Colors.green,
+              //             textColor: Colors.white,
+              //             fontSize: 16.0);
+              //
+              //       } else {}
+              //     },email: email, mobile: mobile,name: name);
+              //
+              //     razorPay.init();
+              //   },
+              // ),
             ]),
           ),
         );
@@ -651,8 +692,8 @@ class _TradingScreenState extends State<TradingScreen> {
   }
 
   buySellDialog(
-      String typ,
-      ) {
+    String typ,
+  ) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -692,12 +733,12 @@ class _TradingScreenState extends State<TradingScreen> {
                                     )),
                                 child: Center(
                                     child: Text(
-                                      typ,
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: colors.whiteTemp),
-                                    ))),
+                                  typ,
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.whiteTemp),
+                                ))),
                             const SizedBox(
                               height: 15,
                             ),
@@ -746,7 +787,8 @@ class _TradingScreenState extends State<TradingScreen> {
                                         },
                                         onChanged: (value) {
                                           totalvalue = 0;
-                                          print('${amount.toString()}___________fds');
+                                          print(
+                                              '${amount.toString()}___________fds');
                                           print('${value}___________value');
                                           if (value.isEmpty) {
                                             setState(() {
@@ -754,12 +796,14 @@ class _TradingScreenState extends State<TradingScreen> {
                                             });
                                           } else {
                                             setState(() {
+                                              double raj = double.parse(
+                                                  amount.toString());
+                                              int amoun = int.parse(
+                                                  raj.toStringAsFixed(0));
 
-
-                                              double raj = double.parse(amount.toString());
-                                              int amoun = int.parse(raj.toStringAsFixed(0));
-
-                                              totalvalue = int.parse(value.toString()) * amoun;
+                                              totalvalue =
+                                                  int.parse(value.toString()) *
+                                                      amoun;
 
                                               totalamountcontroller.text =
                                                   totalvalue.toString();
@@ -790,72 +834,80 @@ class _TradingScreenState extends State<TradingScreen> {
                                 ),
                                 typ == 'Sell'
                                     ? const SizedBox()
-                                    :  const Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(5.0),
-                                      child: Text(
-                                        "Total Amount",
-                                        style: TextStyle(
-                                            color: colors.black54,
-                                            fontWeight: FontWeight.bold),
+                                    : const Row(
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              "Total Amount",
+                                              style: TextStyle(
+                                                  color: colors.black54,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                typ == 'Sell' ? const SizedBox() :  const SizedBox(
-                                  height: 2,
-                                ),
-                                typ == 'Sell' ? const SizedBox() :  Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                  elevation: 4,
-                                  child: Container(
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: colors.whiteTemp),
-                                    child: Center(
-                                      child: TextFormField(
-                                        readOnly: true,
-                                        maxLength: 4,
-                                        controller: totalamountcontroller,
-                                        keyboardType: TextInputType.number,
-                                        decoration: const InputDecoration(
-                                          border: InputBorder.none,
-                                          counterText: "",
-                                          contentPadding: EdgeInsets.only(
-                                              left: 15, top: 15),
-                                          hintText: "Total Amount",
-                                          hintStyle: TextStyle(
-                                              color: colors.secondary),
-                                          prefixIcon: Icon(
-                                            Icons.currency_rupee,
-                                            color: colors.secondary,
-                                            size: 24,
+                                typ == 'Sell'
+                                    ? const SizedBox()
+                                    : const SizedBox(
+                                        height: 2,
+                                      ),
+                                typ == 'Sell'
+                                    ? const SizedBox()
+                                    : Card(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        elevation: 4,
+                                        child: Container(
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              color: colors.whiteTemp),
+                                          child: Center(
+                                            child: TextFormField(
+                                              readOnly: true,
+                                              maxLength: 4,
+                                              controller: totalamountcontroller,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                border: InputBorder.none,
+                                                counterText: "",
+                                                contentPadding: EdgeInsets.only(
+                                                    left: 15, top: 15),
+                                                hintText: "Total Amount",
+                                                hintStyle: TextStyle(
+                                                    color: colors.secondary),
+                                                prefixIcon: Icon(
+                                                  Icons.currency_rupee,
+                                                  color: colors.secondary,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
                                 const SizedBox(
                                   height: 30,
                                 ),
                                 Btn(
                                   onPress: () {
                                     if (_formKey.currentState!.validate()) {
-                                         Navigator.pop(context);
-                                      if(typ == 'Sell'){
+                                      Navigator.pop(context);
+                                      if (typ == 'Sell') {
                                         buySellCoupan(typ);
-                                      }else {
+                                      } else {
                                         paymentMethodPopup(typ);
                                       }
                                     }
                                   },
                                   width: 200,
                                   height: 50,
-                                  title: typ == 'Sell' ?'Sell' : 'Make Payment',
+                                  title:
+                                      typ == 'Sell' ? 'Sell' : 'Make Payment',
                                 ),
                               ]),
                             )
@@ -886,13 +938,15 @@ class _TradingScreenState extends State<TradingScreen> {
         //button("KDJ", onPressed: () => _secondaryState = SecondaryState.KDJ),
         //button("RSI", onPressed: () => _secondaryState = SecondaryState.RSI),
         //button("WR", onPressed: () => _secondaryState = SecondaryState.WR),
-        button("MCDCA None", onPressed: () => _secondaryState = SecondaryState.NONE),
+        button("MCDCA None",
+            onPressed: () => _secondaryState = SecondaryState.NONE),
         button(_volHidden ? "volHidden" : "Visible",
             onPressed: () => _volHidden = !_volHidden),
         //button("切换中英文", onPressed: () => isChinese = !isChinese),
       ],
     );
   }
+
   Widget button(String text, {VoidCallback? onPressed}) {
     return ElevatedButton(
       onPressed: () {
@@ -906,11 +960,8 @@ class _TradingScreenState extends State<TradingScreen> {
     );
   }
 
-
   void getData() {
-
-
-   /* Future<String> future = myData();//getIPAddress('$period');
+    /* Future<String> future = myData();//getIPAddress('$period');
     future.then((result) {
       Map parseJson = json.decode(result);
       List list = parseJson['data'];
@@ -933,28 +984,25 @@ class _TradingScreenState extends State<TradingScreen> {
     });*/
   }
 
-  Future<void> myData() async{
-
-   List <dynamic> _rawData = [];
+  Future<void> myData() async {
+    List<dynamic> _rawData = [];
     var headers = {
       'Cookie': 'ci_session=aee89621fdc53ceafa0e31d5f48378699c94d35b'
     };
-    var request = http.MultipartRequest('POST', Uri.parse('${ApiService.get_coupans_detail}'));
-    request.fields.addAll({
-      'coupan_id': widget.coupanid ?? '1'
-    });
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('${ApiService.get_coupans_detail}'));
+    request.fields.addAll({'coupan_id': widget.coupanid ?? '1'});
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-     var result = jsonDecode(await response.stream.bytesToString());
+      var result = jsonDecode(await response.stream.bytesToString());
 
-     amount = result['price'];
+      amount = result['price'];
 
       (result['data'] as List).forEach((element) {
-
         print('${element}__________Fsdf');
 
         int timeStamp = element['time'];
@@ -964,59 +1012,52 @@ class _TradingScreenState extends State<TradingScreen> {
         double close = double.parse(element['close']);
         int volume = double.parse(element['vol']).toInt();
 
-
-        _rawData.add([timeStamp,open,high,low,close,volume]);
+        _rawData.add([timeStamp, open, high, low, close, volume]);
       });
 
-     candles = _rawData.map((row) => CandleData(
-       timestamp: row[0] * 1000,
-       open: row[1]?.toDouble(),
-       high: row[2]?.toDouble(),
-       low: row[3]?.toDouble(),
-       close: row[4]?.toDouble(),
-       volume: row[5]?.toDouble(),
-     )).toList();
+      candles = _rawData
+          .map((row) => CandleData(
+                timestamp: row[0] * 1000,
+                open: row[1]?.toDouble(),
+                high: row[2]?.toDouble(),
+                low: row[3]?.toDouble(),
+                close: row[4]?.toDouble(),
+                volume: row[5]?.toDouble(),
+              ))
+          .toList();
 
-     open    =     candles.last.open.toString() ;
-     high    =     candles.last.high.toString() ;
-     low     =     candles.last.low.toString() ;
-     current = amount = result['price'];
+      open = candles.last.open.toString();
+      high = candles.last.high.toString();
+      low = candles.last.low.toString();
+      current = amount = result['price'];
 
-
-    setState(() {
-      isLoading = false ;
-    });    }
-    else {
-
+      setState(() {
+        isLoading = false;
+      });
+    } else {
       log('${await response.stream.bytesToString()}');
       print(response.reasonPhrase);
     }
   }
 
-  Future <void> socketSetup() async{
-
+  Future<void> socketSetup() async {
     socket.connect();
 
-    socket.send(jsonEncode({"type":"coupon-graph", 'coupon_id' : widget.coupanid}));
-
+    socket.send(
+        jsonEncode({"type": "coupon-graph", 'coupon_id': widget.coupanid}));
 
     socket.stream.listen((event) {
-
-
-      if(event['type'] =='coupon-graph-updated' && event['coupon_id'].toString() == widget.coupanid ){
-
+      if (event['type'] == 'coupon-graph-updated' &&
+          event['coupon_id'].toString() == widget.coupanid) {
         if (event['data'] != null && event['data'].isNotEmpty) {
           final kline = event['data'][0];
           log('Event trading: ${event}');
 
-           //amount = event['current'] ;
-          open = event['open'].toString() ;
-          high =event['high'].toString() ;
-          low =event['low'].toString() ;
-          current = event['current'].toString() ;
-
-
-
+          //amount = event['current'] ;
+          open = event['open'].toString();
+          high = event['high'].toString();
+          low = event['low'].toString();
+          current = event['current'].toString();
 
           int timeStamp = kline['time'];
           double open1 = double.parse(kline['open']);
@@ -1034,27 +1075,21 @@ class _TradingScreenState extends State<TradingScreen> {
             volume: volume1.toDouble(),
           );
 
+          // Update or add new candle
+          final index = candles
+              .indexWhere((item) => item.timestamp == newEntity.timestamp);
+          if (index >= 0) {
+            candles[index] = newEntity;
+          } else {
+            candles.add(newEntity);
+            if (candles.length > 200) candles.removeAt(0);
+          }
 
-            // Update or add new candle
-            final index = candles.indexWhere((item) => item.timestamp == newEntity.timestamp);
-            if (index >= 0) {
-              candles[index] = newEntity;
-            } else {
-              candles.add(newEntity);
-              if (candles.length > 200) candles.removeAt(0);
-            }
-
-            if(mounted) {
+          if (mounted) {
             setState(() {});
           }
         }
-
       }
-
     });
-
-
   }
-
-
 }

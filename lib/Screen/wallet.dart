@@ -36,11 +36,14 @@ class _WalletScrState extends State<WalletScr> {
   TextEditingController remarksController = TextEditingController();
   TextEditingController txnIdController = TextEditingController();
   TextEditingController messageController = TextEditingController();
+  String? qrCode;
+  List<String> qrCodeList = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    Qrapi();
     getUserPref();
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
@@ -67,6 +70,28 @@ class _WalletScrState extends State<WalletScr> {
     setState(() {
       uploadImage = File(croppedFile!.path);
     });
+  }
+
+  Future<void> Qrapi() async {
+    var headers = {
+      'Cookie': 'ci_session=b3011b2dcfdddf06099d16ef986a0245c21c9ed9'
+    };
+    var request = http.Request('POST', Uri.parse('${ApiService.getSettings}'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var result = await response.stream.bytesToString();
+      var finalResult = jsonDecode(result);
+
+      setState(() {
+        qrCodeList = List<String>.from(finalResult['data']['qr_code'] ?? []);
+      });
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   Widget build(BuildContext context) {
@@ -314,7 +339,7 @@ class _WalletScrState extends State<WalletScr> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Payment Request',
+                                  'Deposit Request',
                                   style: TextStyle(
                                     color: selectedIndex == 0
                                         ? colors.whiteTemp
@@ -518,6 +543,18 @@ class _WalletScrState extends State<WalletScr> {
 
                   Column(
                     children: [
+                      if (selectedIndex == 0 && qrCodeList.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              qrCodeList.first,
+                              width: MediaQuery.of(context).size.width * 0.95,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
                       Material(
                         elevation: 10,
                         borderRadius: BorderRadius.circular(10),
@@ -647,7 +684,7 @@ class _WalletScrState extends State<WalletScr> {
                                         SizedBox(height: 40),
                                         Center(
                                           child: Text(
-                                            "Payment Screenshot",
+                                            "Deposit Screenshot",
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -895,6 +932,14 @@ class _WalletScrState extends State<WalletScr> {
                                               'Payment Type: ${item?.type}',
                                               style: const TextStyle(
                                                   fontSize: 14.0),
+                                            ),
+                                            const SizedBox(height: 5.0),
+                                            Text(
+                                              'Transaction Id: ${item?.txnId}',
+                                              style: const TextStyle(
+                                                  fontSize: 14.0),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                             const SizedBox(height: 5.0),
                                             Text(
@@ -1286,10 +1331,10 @@ class _WalletScrState extends State<WalletScr> {
         amountController.clear();
         uploadImage = null;
         getUserData();
-        Fluttertoast.showToast(msg: 'Payment request sent successfully!');
+        Fluttertoast.showToast(msg: 'Deposit request sent successfully!');
       } else {
         getUserData();
-        Fluttertoast.showToast(msg: 'Payment request sent successfully!');
+        Fluttertoast.showToast(msg: 'Deposit request sent successfully!');
         setState(() {});
         print(addWalletBalance?.message);
       }

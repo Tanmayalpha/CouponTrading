@@ -585,13 +585,13 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: const Padding(
               padding: EdgeInsets.only(left: 5.0),
               child: Icon(
-                Icons.account_balance_wallet_outlined,
+                Icons.payment,
                 size: 30,
                 color: colors.black54,
               ),
             ),
             title: Text(
-              'Payment History',
+              'Deposit History',
             ),
             onTap: () {
               Navigator.push(
