@@ -449,7 +449,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     socket.connect();
 
+
+
     socket.send(jsonEncode({"type":"coupon-list"}));
+
 
 
     socket.stream.listen((event) {

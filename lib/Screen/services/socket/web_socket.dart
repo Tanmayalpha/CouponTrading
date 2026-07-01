@@ -24,6 +24,7 @@ class WebSocketManager {
 
     _channel = WebSocketChannel.connect(Uri.parse(ApiService.socketUrl));
 
+
     _channel!.stream.listen((message) {
       final jsonData = json.decode(message);
 
